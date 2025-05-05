@@ -1,2 +1,5 @@
-node_modules/ 
-moynesam.db 
+node_modules/
+moynesam.db
+.env
+combined.log
+error.log

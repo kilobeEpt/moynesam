@@ -44,549 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой Не Сам - Профессиональная уборка</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/imask@7.6.1/dist/imask.min.js" integrity="sha256-4J3sNuFAL7y1vW7lX4y6qW5e0+PyN4r0O9OBj9tD8gY=" crossorigin="anonymous"></script>
-    <style>
-        :root {
-            --teal: #14B8A6;
-            --coral: #F87171;
-            --white: #FFFFFF;
-            --gray-100: #F3F4F6;
-            --gray-200: #E5E7EB;
-            --gray-600: #4B5563;
-            --gray-700: #374151;
-            --gray-900: #111827;
-            --red-500: #EF4444;
-            --green-500: #10B981;
-            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
-            --spacing: 24px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--white);
-            color: var(--gray-700);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-
-        nav {
-            position: sticky;
-            top: 0;
-            background: var(--white);
-            box-shadow: var(--shadow);
-            z-index: 100;
-        }
-
-        nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--spacing);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(to right, var(--teal), var(--coral));
-            -webkit-background-clip: text;
-            color: transparent;
-            text-decoration: none;
-        }
-
-        .nav-menu {
-            display: none;
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 75%;
-            height: 100%;
-            background: var(--white);
-            padding: 32px;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            flex-direction: column;
-        }
-
-        .nav-menu.active {
-            display: flex;
-            transform: translateX(0);
-        }
-
-        .nav-link {
-            color: var(--gray-700);
-            font-size: 18px;
-            text-decoration: none;
-            margin: var(--spacing) 0;
-            transition: color 0.2s ease;
-        }
-
-        .nav-link:hover {
-            color: var(--teal);
-        }
-
-        .menu-toggle {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: var(--gray-700);
-            cursor: pointer;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            padding: 12px 24px;
-            border-radius: var(--radius);
-            font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-        }
-
-        .btn-primary {
-            background: linear-gradient(to right, var(--teal), var(--coral));
-            color: var(--white);
-        }
-
-        .btn-red {
-            background: var(--red-500);
-            color: var(--white);
-        }
-
-        .btn-gray {
-            background: var(--gray-600);
-            color: var(--white);
-        }
-
-        .hero {
-            background: linear-gradient(to bottom right, var(--teal), var(--coral));
-            background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            border-radius: var(--radius);
-            padding: 64px var(--spacing);
-            text-align: center;
-            color: var(--white);
-            margin: 32px 16px;
-        }
-
-        .hero h1 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: var(--spacing);
-        }
-
-        .hero p {
-            font-size: 18px;
-            max-width: 600px;
-            margin: 0 auto var(--spacing);
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--spacing);
-            margin: 32px 16px;
-        }
-
-        .card {
-            background: var(--white);
-            padding: var(--spacing);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease;
-            text-align: center;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-        }
-
-        .card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: var(--radius);
-            margin-bottom: var(--spacing);
-        }
-
-        .card i {
-            font-size: 40px;
-            color: var(--teal);
-            margin-bottom: var(--spacing);
-        }
-
-        .card h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: var(--gray-600);
-        }
-
-        .cta-form {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: var(--spacing);
-            background: var(--white);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-
-        .cta-form input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: var(--spacing);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .cta-form input:focus {
-            outline: none;
-            border-color: var(--teal);
-            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
-        }
-
-        .cta-form .btn {
-            width: 100%;
-            justify-content: center;
-            padding: 14px;
-        }
-
-        .cta-form .error {
-            color: var(--red-500);
-            font-size: 14px;
-            margin-bottom: var(--spacing);
-        }
-
-        .cta-form .success {
-            color: var(--green-500);
-            font-size: 14px;
-            margin-bottom: var(--spacing);
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--white);
-            padding: var(--spacing);
-            border-radius: var(--radius);
-            max-width: 500px;
-            width: 90%;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--gray-600);
-            cursor: pointer;
-        }
-
-        .modal h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: var(--spacing);
-        }
-
-        .modal input,
-        .modal select,
-        .modal textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: var(--spacing);
-        }
-
-        .modal input:focus,
-        .modal select:focus,
-        .modal textarea:focus {
-            outline: none;
-            border-color: var(--teal);
-        }
-
-        .modal .error {
-            color: var(--red-500);
-            font-size: 12px;
-            margin-bottom: var(--spacing);
-        }
-
-        .modal .success {
-            color: var(--green-500);
-            font-size: 12px;
-            margin-bottom: var(--spacing);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin: var(--spacing) 16px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background: var(--gray-100);
-            font-weight: 600;
-        }
-
-        tr {
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .service-img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: var(--spacing);
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            background: var(--gray-200);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(to right, var(--teal), var(--coral));
-            color: var(--white);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: var(--spacing);
-            right: var(--spacing);
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .toast.active {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            background: var(--green-500);
-            color: var(--white);
-        }
-
-        .toast.error {
-            background: var(--red-500);
-            color: var(--white);
-        }
-
-        .section {
-            padding: 48px 0;
-            text-align: center;
-        }
-
-        .section h2 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 24px;
-        }
-
-        .testimonials { background: var(--gray-100); }
-        .stats { background: linear-gradient(to right, var(--teal), var(--coral)); color: var(--white); }
-        .cta { background: var(--gray-100); }
-
-        .testimonial-card img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin: 0 auto var(--spacing);
-        }
-
-        .faq-item {
-            margin-bottom: var(--spacing);
-            text-align: left;
-        }
-
-        .faq-item h3 {
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: var(--gray-100);
-            border-radius: 8px;
-        }
-
-        .faq-item p {
-            max-height: 0;
-            overflow: hidden;
-            padding: 0 12px;
-            transition: max-height 0.3s ease, padding 0.3s ease;
-        }
-
-        .faq-item.active p {
-            max-height: 200px;
-            padding: 12px;
-        }
-
-        .faq-item i {
-            transition: transform 0.3s ease;
-        }
-
-        .faq-item.active i {
-            transform: rotate(180deg);
-        }
-
-        footer {
-            background: var(--gray-900);
-            color: var(--white);
-            padding: 32px var(--spacing);
-        }
-
-        footer .container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        footer h3 {
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        footer a, footer p {
-            font-size: 14px;
-            color: var(--gray-200);
-        }
-
-        footer a {
-            text-decoration: none;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        footer a:hover {
-            color: var(--teal);
-        }
-
-        @media (min-width: 768px) {
-            .nav-menu {
-                display: flex;
-                position: static;
-                width: auto;
-                height: auto;
-                padding: 0;
-                transform: none;
-                flex-direction: row;
-                align-items: center;
-            }
-
-            .nav-link {
-                margin: 0 0 0 24px;
-            }
-
-            .menu-toggle {
-                display: none;
-            }
-
-            .cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .hero h1 {
-                font-size: 48px;
-            }
-
-            footer .container {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .stats .cards {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <nav>
@@ -599,8 +57,8 @@
                 <a href="#home" class="nav-link" onclick="showHome()">Главная</a>
                 <a href="#about" class="nav-link" onclick="showAbout()">О нас</a>
                 <a href="#services" class="nav-link" onclick="showServices()">Услуги</a>
-                <a href="#orders" class="nav-link" onclick="showOrders()">Мои заявки</a>
-                <a href="#" class="nav-link" onclick="openModal('auth')">Вход</a>
+                <a href="#orders" class="nav-link orders-link" onclick="showOrders()">Мои заявки</a>
+                <a href="#" class="nav-link" id="auth-link" onclick="openModal('auth')">Вход</a>
                 <a href="#" class="nav-link btn btn-primary" onclick="openModal('register')">Заказать</a>
             </div>
         </div>
@@ -655,17 +113,17 @@
                 <h2>Что говорят клиенты</h2>
                 <div class="cards">
                     <div class="card">
-                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Анна">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Анна" loading="lazy">
                         <p>«Мой дом сияет! Быстро и профессионально.»</p>
                         <h3>Анна С.</h3>
                     </div>
                     <div class="card">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Игорь">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Игорь" loading="lazy">
                         <p>«Эко-уборка на высоте, рекомендую!»</p>
                         <h3>Игорь П.</h3>
                     </div>
                     <div class="card">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Мария">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Мария" loading="lazy">
                         <p>«Офис как новый, спасибо!»</p>
                         <h3>Мария Т.</h3>
                     </div>
@@ -678,8 +136,8 @@
                     <div id="cta-error" class="error"></div>
                     <div id="cta-success" class="success"></div>
                     <input type="text" id="cta-name" placeholder="Ваше имя" aria-label="Ваше имя" required>
-                    <input type="text" id="cta-phone" placeholder="+7 (XXX) XXX-XX-XX" aria-label="Ваш телефон" required>
-                    <button class="btn btn-primary" onclick="submitCta()">
+                    <input type="text" id="cta-phone" placeholder="+7 XXX XXX XX XX" aria-label="Ваш телефон" required>
+                    <button class="btn btn-primary" id="cta-submit-btn" onclick="submitCta()">
                         <span id="cta-btn-text">Отправить заявку</span>
                         <i id="cta-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
                     </button>
@@ -698,17 +156,17 @@
                 <h2>Наша команда</h2>
                 <div class="cards">
                     <div class="card">
-                        <img src="https://images.unsplash.com/photo-1519085360753-afccb3ee771f?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Екатерина">
+                        <img src="https://images.unsplash.com/photo-1519085360753-afccb3ee771f?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Екатерина" loading="lazy">
                         <h3>Екатерина М.</h3>
                         <p>Руководитель</p>
                     </div>
                     <div class="card">
-                        <img src="https://images.unsplash.com/photo-1506794778202-6d6d6b2a6a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Алексей">
+                        <img src="https://images.unsplash.com/photo-1506794778202-6d6d6b2a6a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Алексей" loading="lazy">
                         <h3>Алексей П.</h3>
                         <p>Специалист</p>
                     </div>
                     <div class="card">
-                        <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Ольга">
+                        <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Ольга" loading="lazy">
                         <h3>Ольга С.</h3>
                         <p>Менеджер</p>
                     </div>
@@ -779,6 +237,7 @@
                                 <th>Дата</th>
                                 <th>Оплата</th>
                                 <th>Статус</th>
+                                <th>Причина отмены</th>
                                 <th>Действия</th>
                             </tr>
                         </thead>
@@ -843,9 +302,9 @@
                 <input type="text" id="reg-login" placeholder="Логин" aria-label="Логин">
                 <input type="password" id="reg-password" placeholder="Пароль (мин. 6 символов)" aria-label="Пароль">
                 <input type="text" id="reg-fullname" placeholder="ФИО" aria-label="ФИО">
-                <input type="text" id="reg-phone" placeholder="+7 (XXX) XXX-XX-XX" aria-label="Телефон">
+                <input type="text" id="reg-phone" placeholder="+7 XXX XXX XX XX" aria-label="Телефон">
                 <input type="email" id="reg-email" placeholder="Email" aria-label="Email">
-                <button class="btn btn-primary" onclick="register()">
+                <button class="btn btn-primary" id="register-submit-btn" onclick="register()">
                     <span id="reg-btn-text">Зарегистрироваться</span>
                     <i id="reg-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
                 </button>
@@ -856,7 +315,7 @@
                 <div id="auth-error" class="error"></div>
                 <input type="text" id="auth-login" placeholder="Логин" aria-label="Логин">
                 <input type="password" id="auth-password" placeholder="Пароль" aria-label="Пароль">
-                <button class="btn btn-primary" onclick="login()">
+                <button class="btn btn-primary" id="auth-submit-btn" onclick="login()">
                     <span id="auth-btn-text">Войти</span>
                     <i id="auth-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
                 </button>
@@ -866,7 +325,7 @@
                 <h2>Новая заявка</h2>
                 <div id="order-error" class="error"></div>
                 <input type="text" id="order-address" placeholder="Адрес" aria-label="Адрес">
-                <input type="text" id="order-phone" placeholder="+7 (XXX) XXX-XX-XX" aria-label="Телефон">
+                <input type="text" id="order-phone" placeholder="+7 XXX XXX XX XX" aria-label="Телефон">
                 <select id="order-service" aria-label="Услуга">
                     <option value="">Выберите услугу</option>
                 </select>
@@ -878,7 +337,7 @@
                     <option value="наличные">Наличные</option>
                     <option value="карта">Карта</option>
                 </select>
-                <button class="btn btn-primary" onclick="submitOrder()">
+                <button class="btn btn-primary" id="order-submit-btn" onclick="submitOrder()">
                     <span id="order-btn-text">Отправить</span>
                     <i id="order-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
                 </button>
@@ -889,7 +348,7 @@
                 <input type="text" id="edit-service-name" placeholder="Название услуги" aria-label="Название услуги">
                 <input type="url" id="edit-service-photo" placeholder="URL фото услуги" aria-label="URL фото услуги">
                 <textarea id="edit-service-description" placeholder="Описание услуги" rows="4" aria-label="Описание услуги"></textarea>
-                <button class="btn btn-primary" onclick="updateService()">
+                <button class="btn btn-primary" id="edit-service-submit-btn" onclick="updateService()">
                     <span id="edit-service-btn-text">Сохранить</span>
                     <i id="edit-service-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
                 </button>
@@ -910,7 +369,7 @@
             </div>
             <div>
                 <h3>Контакты</h3>
-                <p>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adc4c3cbc2edcec2c0ccc1d4c283dfd8">[email&#160;protected]</a></p>
+                <p>Email: <a href="mailto:support@moynesam.ru">support@moynesam.ru</a></p>
                 <p>Телефон: +7(800)-123-45-67</p>
             </div>
             <div>
@@ -918,643 +377,12 @@
                 <a href="#home" onclick="showHome()">Главная</a>
                 <a href="#about" onclick="showAbout()">О нас</a>
                 <a href="#services" onclick="showServices()">Услуги</a>
+                <a href="#orders" class="orders-link" onclick="showOrders()">Мои заявки</a>
             </div>
         </div>
     </footer>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-    <script>
-        const API_BASE_URL = window.location.origin; // Adjust if backend is on a different domain
-        let token = localStorage.getItem('token');
-        let userId = localStorage.getItem('userId');
-        let isAdmin = localStorage.getItem('isAdmin') === 'true';
-        let isMenuOpen = false;
-        let currentServiceId = null;
-
-        async function apiCall(url, method = 'GET', body = null, auth = false) {
-            const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-            const headers = { 'Content-Type': 'application/json' };
-            if (auth && token) headers['Authorization'] = `Bearer ${token}`;
-            try {
-                console.log(`API Request: ${method} ${fullUrl}`);
-                const response = await fetch(fullUrl, { method, headers, body: body ? JSON.stringify(body) : null });
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error(`API Error: Status ${response.status}, URL: ${fullUrl}, Response: ${text}`);
-                    if (response.status === 404) {
-                        throw new Error('Запрашиваемый ресурс не найден');
-                    }
-                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
-                }
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    console.error(`Non-JSON response from ${fullUrl}: ${text}`);
-                    throw new Error('Получен неверный формат ответа от сервера');
-                }
-                return await response.json();
-            } catch (e) {
-                showToast(e.message, true);
-                throw e;
-            }
-        }
-
-        function initPhoneMasks() {
-            ['reg-phone', 'order-phone', 'cta-phone'].forEach(id => {
-                const input = document.getElementById(id);
-                if (input) IMask(input, { mask: '+7(000)-000-00-00', lazy: false });
-            });
-        }
-
-        function toggleMenu() {
-            isMenuOpen = !isMenuOpen;
-            document.querySelector('.nav-menu').classList.toggle('active', isMenuOpen);
-        }
-
-        function openModal(form, serviceId = null) {
-            document.querySelectorAll('.modal-content > div').forEach(el => el.style.display = 'none');
-            const formElement = document.getElementById(`${form}-form`);
-            if (!formElement) return showToast('Форма не найдена', true);
-            formElement.style.display = 'block';
-            document.getElementById('modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            if (form === 'order') fetchServicesForOrder();
-            if (form === 'edit-service' && serviceId) {
-                currentServiceId = serviceId;
-                fetchServiceForEdit(serviceId);
-            }
-            initPhoneMasks();
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            document.body.style.overflow = 'auto';
-            document.querySelectorAll('.modal .error, .modal .success').forEach(el => el.textContent = '');
-            currentServiceId = null;
-        }
-
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            toast.classList.remove('success', 'error');
-            toast.classList.add(isError ? 'error' : 'success', 'active');
-            setTimeout(() => toast.classList.remove('active'), 3000);
-        }
-
-        function hideAll() {
-            document.querySelectorAll('.fade-in').forEach(el => el.style.display = 'none');
-            closeModal();
-            if (isMenuOpen) toggleMenu();
-        }
-
-        function showHome() {
-            hideAll();
-            document.getElementById('home-page').style.display = 'block';
-            fetchContent();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showAbout() {
-            hideAll();
-            document.getElementById('about-page').style.display = 'block';
-            fetchContent();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showServices() {
-            hideAll();
-            document.getElementById('services-page').style.display = 'block';
-            fetchServices();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showOrders() {
-            if (!token) return openModal('auth');
-            hideAll();
-            document.getElementById('orders-page').style.display = 'block';
-            fetchOrders();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showAdminPanel() {
-            if (!token) return openModal('auth');
-            if (!isAdmin) return showToast('Доступ только для администраторов', true);
-            hideAll();
-            document.getElementById('admin-panel').style.display = 'block';
-            showAdminTab('orders');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showAdminTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            ['admin-orders', 'admin-users', 'admin-content'].forEach(id => document.getElementById(id).style.display = 'none');
-            document.getElementById(`admin-${tab}`).style.display = 'block';
-            if (tab === 'orders') fetchAdminOrders();
-            if (tab === 'users') fetchUsers();
-            if (tab === 'content') {
-                fetchServicesForAdmin();
-                fetchContentForAdmin();
-            }
-        }
-
-        function toggleOtherService() {
-            const check = document.getElementById('other-service-check');
-            const textarea = document.getElementById('other-service');
-            const select = document.getElementById('order-service');
-            textarea.style.display = check.checked ? 'block' : 'none';
-            textarea.required = check.checked;
-            select.required = !check.checked;
-        }
-
-        function toggleFaq(element) {
-            element.parentElement.classList.toggle('active');
-        }
-
-        async function fetchContent() {
-            try {
-                const content = await apiCall('/api/content');
-                document.getElementById('home-title').textContent = content.home_title || 'Чистота с любовью!';
-                document.getElementById('home-subtitle').textContent = content.home_subtitle || 'Профессиональная уборка для дома и офиса.';
-                document.getElementById('about-content').textContent = content.about_content || '«Мой Не Сам» — команда профессионалов...';
-            } catch (e) {
-                console.error('Fetch content error:', e.message);
-            }
-        }
-
-        async function fetchContentForAdmin() {
-            try {
-                const content = await apiCall('/api/content', 'GET', null, true);
-                document.getElementById('content-home-title').value = content.home_title || '';
-                document.getElementById('content-home-subtitle').value = content.home_subtitle || '';
-                document.getElementById('content-about').value = content.about_content || '';
-            } catch (e) {
-                showToast('Ошибка загрузки контента: ' + e.message, true);
-            }
-        }
-
-        async function fetchServices() {
-            try {
-                const services = await apiCall('/api/services');
-                const list = document.getElementById('services-list');
-                list.innerHTML = services.length ? '' : '<p>Услуги не найдены</p>';
-                services.forEach(service => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <img src="${service.photo_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'}" alt="${service.name}">
-                        <h3>${service.name}</h3>
-                        <p>${service.description || 'Профессиональная уборка.'}</p>
-                        <button class="btn btn-primary" onclick="openModal('order')">Заказать</button>
-                    `;
-                    list.appendChild(card);
-                });
-            } catch (e) {
-                showToast('Ошибка загрузки услуг: ' + e.message, true);
-            }
-        }
-
-        async function fetchServicesForOrder() {
-            try {
-                const services = await apiCall('/api/services');
-                const select = document.getElementById('order-service');
-                select.innerHTML = '<option value="">Выберите услугу</option>';
-                services.forEach(service => {
-                    const option = document.createElement('option');
-                    option.value = service.name;
-                    option.textContent = service.name;
-                    select.appendChild(option);
-                });
-            } catch (e) {
-                showToast('Ошибка загрузки услуг: ' + e.message, true);
-            }
-        }
-
-        async function fetchServicesForAdmin() {
-            try {
-                const services = await apiCall('/api/services', 'GET', null, true);
-                const tbody = document.getElementById('admin-services-table-body');
-                tbody.innerHTML = services.length ? '' : '<tr><td colspan="4">Услуги не найдены</td></tr>';
-                services.forEach(service => {
-                    if (!service.id) return;
-                    const tr = document.createElement('tr');
-                    const truncatedDescription = service.description && service.description.length > 50 
-                        ? service.description.substring(0, 47) + '...' 
-                        : service.description || '';
-                    tr.innerHTML = `
-                        <td><img src="${service.photo_url || 'https://via.placeholder.com/50'}" class="service-img" alt=${
-                          service.name}"></td>
-                        <td>${service.name}</td>
-                        <td>${truncatedDescription}</td>
-                        <td>
-                            <button class="btn btn-primary" onclick="openModal('edit-service', ${service.id})">Редактировать</button>
-                            <button class="btn btn-red" onclick="deleteService(${service.id})">Удалить</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {
-                showToast('Ошибка загрузки услуг: ' + e.message, true);
-            }
-        }
-
-        async function fetchServiceForEdit(id) {
-            const nameInput = document.getElementById('edit-service-name');
-            const photoInput = document.getElementById('edit-service-photo');
-            const descInput = document.getElementById('edit-service-description');
-            const error = document.getElementById('edit-service-error');
-            if (!nameInput || !photoInput || !descInput || !error) {
-                showToast('Ошибка: форма редактирования недоступна', true);
-                return;
-            }
-            nameInput.value = '';
-            photoInput.value = '';
-            descInput.value = '';
-            error.textContent = '';
-            try {
-                const service = await apiCall(`/api/services/${id}`, 'GET', null, true);
-                console.log('Service data:', service);
-                nameInput.value = service?.name || '';
-                photoInput.value = service?.photo_url || '';
-                descInput.value = service?.description || '';
-            } catch (e) {
-                console.error('Fetch service error:', e.message);
-                error.textContent = `Ошибка загрузки услуги: ${e.message}`;
-                error.classList.add('error');
-                showToast(`Ошибка загрузки услуги: ${e.message}`, true);
-            }
-        }
-
-        async function addService() {
-            const name = document.getElementById('new-service').value.trim();
-            const photoUrl = document.getElementById('new-service-photo').value.trim();
-            const description = document.getElementById('new-service-description').value.trim();
-            const error = document.getElementById('services-error');
-            if (!error) return showToast('Ошибка: элемент формы не найден', true);
-            if (name.length < 3) {
-                error.textContent = 'Название должно быть длиннее 2 символов';
-                return showToast('Название слишком короткое', true);
-            }
-            try {
-                const result = await apiCall('/api/services', 'POST', { name, photo_url: photoUrl, description }, true);
-                document.getElementById('new-service').value = '';
-                document.getElementById('new-service-photo').value = '';
-                document.getElementById('new-service-description').value = '';
-                error.classList.remove('error');
-                error.classList.add('success');
-                error.textContent = result.message || 'Услуга добавлена';
-                fetchServicesForAdmin();
-                showToast(result.message || 'Услуга добавлена');
-            } catch (e) {
-                error.classList.add('error');
-                error.textContent = e.message || 'Ошибка добавления услуги';
-                showToast(e.message || 'Ошибка добавления услуги', true);
-            }
-        }
-
-        async function updateService() {
-            const name = document.getElementById('edit-service-name').value.trim();
-            const photoUrl = document.getElementById('edit-service-photo').value.trim();
-            const description = document.getElementById('edit-service-description').value.trim();
-            const error = document.getElementById('edit-service-error');
-            const btnText = document.getElementById('edit-service-btn-text');
-            const spinner = document.getElementById('edit-service-btn-spinner');
-            if (!error) return showToast('Ошибка: элемент формы не найден', true);
-            if (name.length < 3) {
-                error.textContent = 'Название должно быть длиннее 2 символов';
-                return showToast('Название слишком короткое', true);
-            }
-            btnText.style.display = 'none';
-            spinner.style.display = 'inline';
-            try {
-                const result = await apiCall(`/api/services/${currentServiceId}`, 'PUT', { name, photo_url: photoUrl, description }, true);
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.classList.remove('error');
-                error.classList.add('success');
-                error.textContent = result.message || 'Услуга обновлена';
-                fetchServicesForAdmin();
-                showToast(result.message || 'Услуга обновлена');
-                setTimeout(closeModal, 2000);
-            } catch (e) {
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.classList.remove('success');
-                error.classList.add('error');
-                error.textContent = e.message || 'Ошибка обновления услуги';
-                showToast(e.message || 'Ошибка обновления услуги', true);
-            }
-        }
-
-        async function deleteService(id) {
-            if (!confirm('Вы уверены, что хотите удалить эту услугу?')) return;
-            try {
-                const result = await apiCall(`/api/services/${id}`, 'DELETE', null, true);
-                fetchServicesForAdmin();
-                showToast(result.message || 'Услуга удалена');
-            } catch (e) {
-                showToast(e.message || 'Ошибка удаления услуги', true);
-            }
-        }
-
-        async function updateContent() {
-            const homeTitle = document.getElementById('content-home-title').value.trim();
-            const homeSubtitle = document.getElementById('content-home-subtitle').value.trim();
-            const aboutContent = document.getElementById('content-about').value.trim();
-            const error = document.getElementById('content-error');
-            if (!error) return showToast('Ошибка: элемент формы не найден', true);
-            if (!homeTitle || !homeSubtitle || !aboutContent) {
-                error.textContent = 'Заполните все поля';
-                return showToast('Заполните все поля', true);
-            }
-            try {
-                const result = await apiCall('/api/content', 'PUT', { home_title: homeTitle, home_subtitle: homeSubtitle, about_content: aboutContent }, true);
-                error.classList.remove('error');
-                error.classList.add('success');
-                error.textContent = result.message || 'Контент обновлен';
-                fetchContent();
-                showToast(result.message || 'Контент обновлен');
-            } catch (e) {
-                error.classList.add('error');
-                error.textContent = e.message || 'Ошибка обновления контента';
-                showToast(e.message || 'Ошибка обновления контента', true);
-            }
-        }
-
-        async function fetchUsers() {
-            try {
-                const users = await apiCall('/api/users', 'GET', null, true);
-                const tbody = document.getElementById('admin-users-table-body');
-                tbody.innerHTML = users.length ? '' : '<tr><td colspan="5">Пользователи не найдены</td></tr>';
-                users.forEach(user => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${user.login}</td>
-                        <td>${user.full_name}</td>
-                        <td>${user.phone}</td>
-                        <td>${user.email}</td>
-                        <td><button class="btn btn-red" onclick="deleteUser(${user.id})">Удалить</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {
-                showToast('Ошибка загрузки пользователей: ' + e.message, true);
-            }
-        }
-
-        async function deleteUser(id) {
-            if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) return;
-            try {
-                const result = await apiCall(`/api/users/${id}`, 'DELETE', null, true);
-                fetchUsers();
-                showToast(result.message || 'Пользователь удален');
-            } catch (e) {
-                showToast(e.message || 'Ошибка удаления пользователя', true);
-            }
-        }
-
-        async function register() {
-            const login = document.getElementById('reg-login').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const fullname = document.getElementById('reg-fullname').value.trim();
-            const phone = document.getElementById('reg-phone').value;
-            const email = document.getElementById('reg-email').value.trim();
-            const error = document.getElementById('register-error');
-            const btnText = document.getElementById('reg-btn-text');
-            const spinner = document.getElementById('reg-btn-spinner');
-            if (!error) return showToast('Ошибка: элемент формы не найден', true);
-            if (login.length < 3) return showError(error, 'Логин должен быть длиннее 2 символов');
-            if (password.length < 6) return showError(error, 'Пароль должен быть длиннее 5 символов');
-            if (!fullname.match(/^[А-Яа-я\s]+$/)) return showError(error, 'ФИО должно содержать только кириллицу');
-            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) return showError(error, 'Неверный формат телефона');
-            if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) return showError(error, 'Неверный формат email');
-            btnText.style.display = 'none';
-            spinner.style.display = 'inline';
-            try {
-                const result = await apiCall('/api/register', 'POST', { login, password, full_name: fullname, phone, email });
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.classList.remove('error');
-                error.classList.add('success');
-                error.textContent = result.message || 'Регистрация успешна';
-                showToast(result.message || 'Регистрация успешна');
-                setTimeout(() => openModal('auth'), 2000);
-            } catch (e) {
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.classList.add('error');
-                error.textContent = e.message || 'Ошибка регистрации';
-                showToast(e.message || 'Ошибка регистрации', true);
-            }
-        }
-
-        async function login() {
-            const login = document.getElementById('auth-login').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const error = document.getElementById('auth-error');
-            const btnText = document.getElementById('auth-btn-text');
-            const spinner = document.getElementById('auth-btn-spinner');
-            if (!error) return showToast('Ошибка: элемент формы не найден', true);
-            if (!login || !password) return showError(error, 'Заполните все поля');
-            btnText.style.display = 'none';
-            spinner.style.display = 'inline';
-            try {
-                const result = await apiCall('/api/login', 'POST', { login, password });
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                token = result.token;
-                userId = result.userId;
-                isAdmin = result.isAdmin;
-                localStorage.setItem('token', token);
-                localStorage.setItem('userId', userId);
-                localStorage.setItem('isAdmin', isAdmin);
-                closeModal();
-                if (isAdmin) showAdminPanel();
-                else showOrders();
-                showToast('Вход выполнен успешно');
-            } catch (e) {
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.textContent = e.message || 'Ошибка входа';
-                showToast(e.message || 'Ошибка входа', true);
-            }
-        }
-
-        function logout() {
-            localStorage.clear();
-            token = null;
-            userId = null;
-            isAdmin = false;
-            showHome();
-            showToast('Выход выполнен');
-        }
-
-        async function fetchOrders() {
-            try {
-                const orders = await apiCall('/api/orders', 'GET', null, true);
-                const tbody = document.getElementById('orders-table-body');
-                tbody.innerHTML = orders.length ? '' : '<tr><td colspan="5">Заявки не найдены</td></tr>';
-                orders.forEach(order => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${order.address}</td>
-                        <td>${order.service_type}${order.other_service ? ` (${order.other_service})` : ''}</td>
-                        <td>${new Date(order.date_time).toLocaleString()}</td>
-                        <td>${order.payment_type}</td>
-                        <td>${order.status}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {
-                showToast('Ошибка загрузки заявок: ' + e.message, true);
-            }
-        }
-
-        async function submitOrder() {
-            const address = document.getElementById('order-address').value.trim();
-            const phone = document.getElementById('order-phone').value;
-            const service = document.getElementById('order-service').value;
-            const otherService = document.getElementById('other-service-check').checked ? document.getElementById('other-service').value.trim() : '';
-            const datetime = document.getElementById('order-datetime').value;
-            const payment = document.getElementById('order-payment').value;
-            const error = document.getElementById('order-error');
-            const btnText = document.getElementById('order-btn-text');
-            const spinner = document.getElementById('order-btn-spinner');
-            if (!error) return showToast('Ошибка: элемент формы не найден', true);
-            if (!address) return showError(error, 'Укажите адрес');
-            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) return showError(error, 'Неверный формат телефона');
-            if (!service && !otherService) return showError(error, 'Выберите или опишите услугу');
-            if (!datetime) return showError(error, 'Укажите дату и время');
-            if (!payment) return showError(error, 'Выберите тип оплаты');
-            btnText.style.display = 'none';
-            spinner.style.display = 'inline';
-            try {
-                const result = await apiCall('/api/orders', 'POST', {
-                    address, phone, service_type: service, other_service: otherService, date_time: datetime, payment_type: payment
-                }, true);
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.classList.remove('error');
-                error.classList.add('success');
-                error.textContent = result.message || 'Заявка отправлена';
-                showToast(result.message || 'Заявка отправлена');
-                setTimeout(() => {
-                    closeModal();
-                    showOrders();
-                }, 2000);
-            } catch (e) {
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.textContent = e.message || 'Ошибка отправки заявки';
-                showToast(e.message || 'Ошибка отправки заявки', true);
-            }
-        }
-
-        async function submitCta() {
-            const name = document.getElementById('cta-name').value.trim();
-            const phone = document.getElementById('cta-phone').value;
-            const error = document.getElementById('cta-error');
-            const success = document.getElementById('cta-success');
-            const btnText = document.getElementById('cta-btn-text');
-            const spinner = document.getElementById('cta-btn-spinner');
-            if (!error || !success) return showToast('Ошибка: элемент формы не найден', true);
-            if (!name || name.length < 2) return showError(error, 'Имя должно быть длиннее 1 символа');
-            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) return showError(error, 'Неверный формат телефона');
-            btnText.style.display = 'none';
-            spinner.style.display = 'inline';
-            try {
-                const result = await apiCall('/api/cta', 'POST', { name, phone });
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                error.textContent = '';
-                success.textContent = result.message || 'Заявка отправлена';
-                showToast(result.message || 'Заявка отправлена');
-                document.getElementById('cta-name').value = '';
-                document.getElementById('cta-phone').value = '';
-                setTimeout(() => success.textContent = '', 3000);
-            } catch (e) {
-                btnText.style.display = 'inline';
-                spinner.style.display = 'none';
-                success.textContent = '';
-                error.textContent = e.message || 'Ошибка отправки заявки';
-                showToast(e.message || 'Ошибка отправки заявки', true);
-            }
-        }
-
-        async function fetchAdminOrders() {
-            try {
-                const orders = await apiCall('/api/admin-orders', 'GET', null, true);
-                const tbody = document.getElementById('admin-orders-table-body');
-                tbody.innerHTML = orders.length ? '' : '<tr><td colspan="8">Заявки не найдены</td></tr>';
-                orders.forEach(order => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${order.full_name}</td>
-                        <td>${order.address}</td>
-                        <td>${order.phone}</td>
-                        <td>${order.service_type}${order.other_service ? ` (${order.other_service})` : ''}</td>
-                        <td>${new Date(order.date_time).toLocaleString()}</td>
-                        <td>${order.payment_type}</td>
-                        <td>${order.status}</td>
-                        <td>
-                            <select onchange="updateStatus(${order.id}, this.value)">
-                                <option value="новая" ${order.status === 'новая' ? 'selected' : ''}>Новая</option>
-                                <option value="в работе" ${order.status === 'в работе' ? 'selected' : ''}>В работе</option>
-                                <option value="выполнено" ${order.status === 'выполнено' ? 'selected' : ''}>Выполнено</option>
-                                <option value="отменено" ${order.status === 'отменено' ? 'selected' : ''}>Отменено</option>
-                            </select>
-                            ${order.status === 'отменено' ? `<input type="text" value="${order.cancel_reason || ''}" onchange="updateCancelReason(${order.id}, this.value)">` : ''}
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {
-                showToast('Ошибка загрузки заявок: ' + e.message, true);
-            }
-        }
-
-        async function updateStatus(orderId, status) {
-            let cancelReason = '';
-            if (status === 'отменено') {
-                cancelReason = prompt('Укажите причину отмены:');
-                if (!cancelReason) return;
-            }
-            try {
-                const result = await apiCall('/api/admin-orders', 'PATCH', { id: orderId, status, cancel_reason: cancelReason }, true);
-                fetchAdminOrders();
-                showToast(result.message || 'Статус обновлен');
-            } catch (e) {
-                showToast(e.message || 'Ошибка обновления статуса', true);
-            }
-        }
-
-        async function updateCancelReason(orderId, reason) {
-            if (!reason.trim()) return showToast('Причина не может быть пустой', true);
-            try {
-                const result = await apiCall('/api/admin-orders', 'PATCH', { id: orderId, cancel_reason: reason }, true);
-                fetchAdminOrders();
-                showToast(result.message || 'Причина обновлена');
-            } catch (e) {
-                showToast(e.message || 'Ошибка обновления причины', true);
-            }
-        }
-
-        function showError(element, message) {
-            element.textContent = message;
-            element.classList.add('error');
-            showToast(message, true);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initPhoneMasks();
-            showHome();
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.textContent === 'Мои заявки' && isAdmin) {
-                    link.textContent = 'Админ-панель';
-                    link.onclick = showAdminPanel;
-                }
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/imask@7.6.1/dist/imask.min.js" integrity="sha256-4J3sNuFAL7y1vW7lX4y6qW5e0+PyN4r0O9OBj9tD8gY=" crossorigin="anonymous" defer></script>
+    <script src="/main.js" defer></script>
 </body>
 </html>

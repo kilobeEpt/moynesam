@@ -1,484 +1,623 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const sanitizeHtml = require('sanitize-html');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const rateLimit = require('express-rate-limit');
+const sanitizeHtml = require('sanitize-html');
+const winston = require('winston');
+const cookieParser = require('cookie-parser');
 
 const app = express();
-app.use(cors());
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Use environment variable in production
+const DB_PATH = path.join(__dirname, 'moynesam.db');
+
+// Logger setup
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' })
+    ]
+});
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple()
+    }));
+}
+
+// Database setup
+const db = new sqlite3.Database(DB_PATH, (err) => {
+    if (err) {
+        logger.error('Database connection error:', err.message);
+        throw err;
+    }
+    logger.info('Connected to SQLite database');
+});
+
+// Initialize database tables
+db.serialize(() => {
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            login TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            full_name TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            email TEXT NOT NULL,
+            isAdmin BOOLEAN DEFAULT 0
+        )
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            full_name TEXT NOT NULL,
+            address TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            service_type TEXT NOT NULL,
+            other_service TEXT,
+            date_time DATETIME NOT NULL,
+            payment_type TEXT NOT NULL,
+            status TEXT DEFAULT 'новая',
+            cancel_reason TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS services (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            photo_url TEXT,
+            description TEXT
+        )
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS content (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            home_title TEXT,
+            home_subtitle TEXT,
+            about_content TEXT
+        )
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS cta_submissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Insert default data if not exists
+    db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+        if (err) logger.error('Error checking users:', err.message);
+        if (row.count === 0) {
+            bcrypt.hash('admin123', 10, (err, hash) => {
+                if (err) logger.error('Error hashing admin password:', err.message);
+                db.run(`
+                    INSERT INTO users (login, password, full_name, phone, email, isAdmin)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, ['admin', hash, 'Админ', '+79999999999', 'admin@moynesam.ru', 1], (err) => {
+                    if (err) logger.error('Error inserting default admin:', err.message);
+                    else logger.info('Default admin created');
+                });
+            });
+        }
+    });
+    db.get('SELECT COUNT(*) as count FROM services', (err, row) => {
+        if (err) logger.error('Error checking services:', err.message);
+        if (row.count === 0) {
+            db.run(`
+                INSERT INTO services (name, photo_url, description)
+                VALUES (?, ?, ?), (?, ?, ?)
+            `, [
+                'Стандартная уборка', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c', 'Полная уборка помещений',
+                'Генеральная уборка', 'https://images.unsplash.com/photo-1581578735764-2f38729f6804', 'Глубокая чистка всех поверхностей'
+            ], (err) => {
+                if (err) logger.error('Error inserting default services:', err.message);
+            });
+        }
+    });
+    db.get('SELECT COUNT(*) as count FROM content', (err, row) => {
+        if (err) logger.error('Error checking content:', err.message);
+        if (row.count === 0) {
+            db.run(`
+                INSERT INTO content (home_title, home_subtitle, about_content)
+                VALUES (?, ?, ?)
+            `, [
+                'Чистота с любовью!',
+                'Профессиональная уборка для дома и офиса.',
+                '«Мой Не Сам» — команда профессионалов, делающая дома и офисы чище с 2023 года.'
+            ], (err) => {
+                if (err) logger.error('Error inserting default content:', err.message);
+            });
+        }
+    });
+});
+
+// Middleware
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const db = new sqlite3.Database('./moynesam.db', (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to SQLite database.');
-        initializeDatabase();
-    }
+// Rate limiting for login endpoint
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit to 5 login attempts per IP
+    message: 'Слишком много попыток входа, попробуйте снова через 15 минут'
 });
+app.use('/api/login', loginLimiter);
 
-function initializeDatabase() {
-    db.serialize(() => {
-        db.run(`
-            CREATE TABLE IF NOT EXISTS Users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                login TEXT UNIQUE,
-                password TEXT,
-                full_name TEXT,
-                phone TEXT,
-                email TEXT
-            )
-        `);
-        db.run(`
-            CREATE TABLE IF NOT EXISTS Services (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                photo_url TEXT,
-                description TEXT
-            )
-        `);
-        db.run(`
-            CREATE TABLE IF NOT EXISTS Orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                address TEXT,
-                phone TEXT,
-                service_type TEXT,
-                other_service TEXT,
-                date_time TEXT,
-                payment_type TEXT,
-                status TEXT,
-                cancel_reason TEXT,
-                FOREIGN KEY(user_id) REFERENCES Users(id)
-            )
-        `);
-        db.run(`
-            CREATE TABLE IF NOT EXISTS Content (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                key TEXT UNIQUE,
-                value TEXT
-            )
-        `);
-
-        // Insert sample services
-        const services = [
-            { 
-                name: 'общий клининг', 
-                photo_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
-                description: 'Регулярная уборка для поддержания чистоты в доме или офисе.' 
-            },
-            { 
-                name: 'генеральная уборка', 
-                photo_url: 'https://images.unsplash.com/photo-1581578735767-152f38429b48?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
-                description: 'Глубокая уборка всех помещений с использованием профессиональных средств.' 
-            },
-            { 
-                name: 'последстроительная уборка', 
-                photo_url: 'https://images.unsplash.com/photo-1501183638710-841dd1904471?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
-                description: 'Удаление строительной пыли и мусора после ремонта.' 
-            },
-            { 
-                name: 'химчистка ковров и мебели', 
-                photo_url: 'https://images.unsplash.com/photo-1595428774223-d642f8f76b0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
-                description: 'Глубокая чистка ковров и мягкой мебели с применением эко-средств.' 
+// Authentication middleware
+const authenticate = async (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        logger.warn('No token provided');
+        return res.status(401).json({ message: 'Требуется авторизация' });
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        db.get('SELECT * FROM users WHERE id = ?', [decoded.userId], (err, user) => {
+            if (err || !user) {
+                logger.warn('User not found for token:', token);
+                return res.status(401).json({ message: 'Пользователь не найден' });
             }
-        ];
-        services.forEach(({ name, photo_url, description }) => {
-            db.run('INSERT OR IGNORE INTO Services (name, photo_url, description) VALUES (?, ?, ?)', [name, photo_url, description]);
+            req.user = user;
+            next();
         });
-
-        // Insert sample users
-        for (let i = 1; i <= 10; i++) {
-            const login = `user${i}`;
-            const password = bcrypt.hashSync(`password${i}`, 10);
-            const full_name = `Пользователь ${i}`;
-            const phone = `+7(900)-123-45-${i < 10 ? '0' + i : i}`;
-            const email = `user${i}@example.com`;
-            db.run('INSERT OR IGNORE INTO Users (login, password, full_name, phone, email) VALUES (?, ?, ?, ?, ?)', 
-                [login, password, full_name, phone, email]);
-        }
-
-        // Insert admin user
-        db.run('INSERT OR IGNORE INTO Users (login, password, full_name, phone, email) VALUES (?, ?, ?, ?, ?)', 
-            ['adminka', bcrypt.hashSync('password', 10), 'Администратор', '+7(999)-999-99-99', 'admin@example.com']);
-
-        // Insert sample orders
-        const statuses = ['новая', 'в работе', 'выполнено', 'отменено'];
-        for (let i = 1; i <= 10; i++) {
-            const user_id = i;
-            const address = `Адрес ${i}`;
-            const phone = `+7(900)-123-45-${i < 10 ? '0' + i : i}`;
-            const service_type = services[i % 4].name;
-            const date_time = new Date(`2025-06-${i < 10 ? '0' + i : i}`).toISOString();
-            const payment_type = i % 2 ? 'наличные' : 'банковская карта';
-            const status = statuses[i % 4];
-            const cancel_reason = status === 'отменено' ? 'Причина отмены' : null;
-            db.run('INSERT OR IGNORE INTO Orders (user_id, address, phone, service_type, date_time, payment_type, status, cancel_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                [user_id, address, phone, service_type, date_time, payment_type, status, cancel_reason]);
-        }
-
-        // Insert default content
-        const content = [
-            ['home_title', 'Чистота начинается с нас!'],
-            ['home_subtitle', 'Профессиональные клининговые услуги для вашего дома и офиса.'],
-            ['about_content', '«Мой Не Сам» — это ваш надежный партнер в создании чистоты и уюта. Мы предлагаем широкий спектр клининговых услуг для жилых и коммерческих помещений. Наша миссия — сделать вашу жизнь проще и комфортнее, предоставляя профессиональные услуги по уборке. С 2023 года мы помогаем тысячам клиентов поддерживать чистоту, используя современное оборудование и экологичные материалы. Доверьте уборку нам и наслаждайтесь свободным временем!']
-        ];
-        content.forEach(([key, value]) => {
-            db.run('INSERT OR REPLACE INTO Content (key, value) VALUES (?, ?)', [key, value]);
-        });
-    });
-}
-
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Токен отсутствует' });
-
-    jwt.verify(token, 'secret', (err, user) => {
-        if (err) return res.status(403).json({ error: 'Недействительный токен' });
-        req.user = user;
-        next();
-    });
-}
-
-app.post('/api/register', (req, res) => {
-    const { login, password, full_name, phone, email } = req.body;
-    
-    if (!login || login.length < 3) {
-        return res.status(400).json({ error: 'Логин должен быть не короче 3 символов' });
+    } catch (err) {
+        logger.error('Token verification error:', err.message);
+        return res.status(401).json({ message: 'Неверный или истекший токен' });
     }
-    if (!password || password.length < 6) {
-        return res.status(400).json({ error: 'Пароль должен быть не короче 6 символов' });
-    }
-    if (!full_name || !/^[А-Яа-я\s]+$/.test(full_name)) {
-        return res.status(400).json({ error: 'ФИО должно содержать только кириллицу и пробелы' });
-    }
-    if (!phone || !/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/.test(phone)) {
-        return res.status(400).json({ error: 'Телефон должен быть в формате +7(XXX)-XXX-XX-XX' });
-    }
-    if (!email || !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-        return res.status(400).json({ error: 'Некорректный формат email' });
-    }
+};
 
-    const sanitizedLogin = sanitizeHtml(login);
-    const sanitizedFullName = sanitizeHtml(full_name);
-    const sanitizedPhone = sanitizeHtml(phone);
-    const sanitizedEmail = sanitizeHtml(email);
-
-    db.get('SELECT id FROM Users WHERE login = ? OR email = ?', [sanitizedLogin, sanitizedEmail], (err, row) => {
-        if (err) {
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        if (row) {
-            return res.status(400).json({ error: 'Логин или email уже занят' });
-        }
-
-        const hashedPassword = bcrypt.hashSync(password, 10);
-        db.run('INSERT INTO Users (login, password, full_name, phone, email) VALUES (?, ?, ?, ?, ?)', 
-            [sanitizedLogin, hashedPassword, sanitizedFullName, sanitizedPhone, sanitizedEmail], 
-            function(err) {
-                if (err) {
-                    return res.status(500).json({ error: 'Ошибка сервера' });
-                }
-                res.json({ message: 'Регистрация успешна' });
-            }
-        );
-    });
-});
-
-app.post('/api/login', (req, res) => {
-    const { login, password } = req.body;
-    const sanitizedLogin = sanitizeHtml(login);
-
-    db.get('SELECT * FROM Users WHERE login = ?', [sanitizedLogin], (err, user) => {
-        if (err || !user) {
-            return res.status(401).json({ error: 'Неверный логин или пароль' });
-        }
-
-        if (sanitizedLogin === 'adminka' && password === 'password') {
-            const token = jwt.sign({ id: user.id, isAdmin: true }, 'secret', { expiresIn: '1h' });
-            return res.json({ token, userId: user.id, isAdmin: true });
-        }
-
-        if (!bcrypt.compareSync(password, user.password)) {
-            return res.status(401).json({ error: 'Неверный логин или пароль' });
-        }
-
-        const token = jwt.sign({ id: user.id, isAdmin: false }, 'secret', { expiresIn: '1h' });
-        res.json({ token, userId: user.id, isAdmin: false });
-    });
-});
-
-app.get('/api/services', (req, res) => {
-    db.all('SELECT id, name, photo_url, description FROM Services', [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching services:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        res.json(rows);
-    });
-});
-
-app.get('/api/services/:id', (req, res) => {
-    const id = req.params.id;
-    db.get('SELECT id, name, photo_url, description FROM Services WHERE id = ?', [id], (err, row) => {
-        if (err) {
-            console.error('Error fetching service:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        if (!row) {
-            return res.status(404).json({ error: 'Услуга не найдена' });
-        }
-        res.json(row);
-    });
-});
-
-app.post('/api/services', authenticateToken, (req, res) => {
+// Admin middleware
+const isAdmin = (req, res, next) => {
     if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
+        logger.warn('Non-admin user attempted admin access:', req.user.id);
+        return res.status(403).json({ message: 'Доступ только для администраторов' });
     }
-    const { name, photo_url, description } = req.body;
-    const sanitizedName = sanitizeHtml(name);
-    const sanitizedPhotoUrl = photo_url ? sanitizeHtml(photo_url) : null;
-    const sanitizedDescription = description ? sanitizeHtml(description) : null;
-    
-    if (!sanitizedName || sanitizedName.length < 3) {
-        return res.status(400).json({ error: 'Название услуги должно быть не короче 3 символов' });
-    }
+    next();
+};
 
-    db.run('INSERT INTO Services (name, photo_url, description) VALUES (?, ?, ?)', 
-        [sanitizedName, sanitizedPhotoUrl, sanitizedDescription], 
-        function(err) {
-            if (err) {
-                console.error('Error creating service:', err.message);
-                return res.status(500).json({ error: 'Ошибка сервера' });
-            }
-            res.json({ message: 'Услуга добавлена', id: this.lastID });
-        }
-    );
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    logger.error('Unhandled error:', err.message, err.stack);
+    res.status(500).json({ message: 'Ошибка сервера' });
 });
 
-app.put('/api/services/:id', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    const id = req.params.id;
-    const { name, photo_url, description } = req.body;
-    const sanitizedName = sanitizeHtml(name);
-    const sanitizedPhotoUrl = photo_url ? sanitizeHtml(photo_url) : null;
-    const sanitizedDescription = description ? sanitizeHtml(description) : null;
-    
-    if (!sanitizedName || sanitizedName.length < 3) {
-        return res.status(400).json({ error: 'Название услуги должно быть не короче 3 символов' });
-    }
-
-    db.run('UPDATE Services SET name = ?, photo_url = ?, description = ? WHERE id = ?', 
-        [sanitizedName, sanitizedPhotoUrl, sanitizedDescription, id], 
-        function(err) {
-            if (err) {
-                console.error('Error updating service:', err.message);
-                return res.status(500).json({ error: 'Ошибка сервера' });
-            }
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'Услуга не найдена' });
-            }
-            res.json({ message: 'Услуга обновлена' });
-        }
-    );
-});
-
-app.delete('/api/services/:id', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    const id = req.params.id;
-    db.run('DELETE FROM Services WHERE id = ?', [id], function(err) {
-        if (err) {
-            console.error('Error deleting service:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        if (this.changes === 0) {
-            return res.status(404).json({ error: 'Услуга не найдена' });
-        }
-        res.json({ message: 'Услуга удалена' });
-    });
-});
-
-app.get('/api/orders', authenticateToken, (req, res) => {
-    db.all('SELECT * FROM Orders WHERE user_id = ?', [req.user.id], (err, rows) => {
-        if (err) {
-            console.error('Error fetching orders:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        res.json(rows);
-    });
-});
-
-app.post('/api/orders', authenticateToken, (req, res) => {
-    const { address, phone, service_type, other_service, date_time, payment_type } = req.body;
-    
-    if (!address) {
-        return res.status(400).json({ error: 'Укажите адрес' });
-    }
-    if (!phone || !/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/.test(phone)) {
-        return res.status(400).json({ error: 'Телефон должен быть в формате +7(XXX)-XXX-XX-XX' });
-    }
-    if (!service_type && !other_service) {
-        return res.status(400).json({ error: 'Выберите услугу или укажите иную' });
-    }
-    if (!date_time) {
-        return res.status(400).json({ error: 'Укажите дату и время' });
-    }
-    if (!payment_type) {
-        return res.status(400).json({ error: 'Выберите тип оплаты' });
-    }
-
-    const sanitizedAddress = sanitizeHtml(address);
-    const sanitizedPhone = sanitizeHtml(phone);
-    const sanitizedServiceType = sanitizeHtml(service_type);
-    const sanitizedOtherService = sanitizeHtml(other_service);
-    const sanitizedDateTime = sanitizeHtml(date_time);
-    const sanitizedPaymentType = sanitizeHtml(payment_type);
-
-    db.run('INSERT INTO Orders (user_id, address, phone, service_type, other_service, date_time, payment_type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-        [req.user.id, sanitizedAddress, sanitizedPhone, sanitizedServiceType, sanitizedOtherService, sanitizedDateTime, sanitizedPaymentType, 'новая'], 
-        function(err) {
-            if (err) {
-                console.error('Error creating order:', err.message);
-                return res.status(500).json({ error: 'Ошибка сервера' });
-            }
-            res.json({ message: 'Заявка создана' });
-        }
-    );
-});
-
-app.get('/api/admin-orders', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    db.all('SELECT Orders.*, Users.full_name FROM Orders JOIN Users ON Orders.user_id = Users.id', [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching admin orders:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        res.json(rows);
-    });
-});
-
-app.patch('/api/admin-orders', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    const { id, status, cancel_reason } = req.body;
-    const sanitizedStatus = sanitizeHtml(status);
-    const sanitizedCancelReason = cancel_reason ? sanitizeHtml(cancel_reason) : null;
-
-    if (!id || !sanitizedStatus) {
-        return res.status(400).json({ error: 'Некорректные данные' });
-    }
-
-    db.run('UPDATE Orders SET status = ?, cancel_reason = ? WHERE id = ?', 
-        [sanitizedStatus, sanitizedCancelReason, id], 
-        function(err) {
-            if (err) {
-                console.error('Error updating order:', err.message);
-                return res.status(500).json({ error: 'Ошибка сервера' });
-            }
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'Заявка не найдена' });
-            }
-            res.json({ message: 'Статус обновлен' });
-        }
-    );
-});
-
-app.get('/api/users', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    db.all('SELECT id, login, full_name, phone, email FROM Users WHERE login != "adminka"', [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching users:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        res.json(rows);
-    });
-});
-
-app.delete('/api/users/:id', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    const id = req.params.id;
-    db.run('DELETE FROM Users WHERE id = ? AND login != "adminka"', [id], function(err) {
-        if (err) {
-            console.error('Error deleting user:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        if (this.changes === 0) {
-            return res.status(404).json({ error: 'Пользователь не найден' });
-        }
-        db.run('DELETE FROM Orders WHERE user_id = ?', [id], function(err) {
-            if (err) {
-                console.error('Error deleting user orders:', err.message);
-            }
-            res.json({ message: 'Пользователь удален' });
-        });
-    });
-});
-
-app.get('/api/content', (req, res) => {
-    db.all('SELECT key, value FROM Content', [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching content:', err.message);
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        const content = {};
-        rows.forEach(row => {
-            content[row.key] = row.value;
-        });
-        res.json(content);
-    });
-});
-
-app.put('/api/content', authenticateToken, (req, res) => {
-    if (!req.user.isAdmin) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    const { home_title, home_subtitle, about_content } = req.body;
-    
-    if (!home_title || !home_subtitle || !about_content) {
-        return res.status(400).json({ error: 'Все поля должны быть заполнены' });
-    }
-
-    const sanitizedHomeTitle = sanitizeHtml(home_title);
-    const sanitizedHomeSubtitle = sanitizeHtml(home_subtitle);
-    const sanitizedAboutContent = sanitizeHtml(about_content);
-
-    db.serialize(() => {
-        db.run('INSERT OR REPLACE INTO Content (key, value) VALUES (?, ?)', ['home_title', sanitizedHomeTitle]);
-        db.run('INSERT OR REPLACE INTO Content (key, value) VALUES (?, ?)', ['home_subtitle', sanitizedHomeSubtitle]);
-        db.run('INSERT OR REPLACE INTO Content (key, value) VALUES (?, ?)', ['about_content', sanitizedAboutContent], 
-            function(err) {
-                if (err) {
-                    console.error('Error updating content:', err.message);
-                    return res.status(500).json({ error: 'Ошибка сервера' });
-                }
-                res.json({ message: 'Контент обновлен' });
-            }
-        );
-    });
-});
-
-// Serve index.html for all non-API routes
-app.get('*', (req, res) => {
+// Serve index.html
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
+// Check session
+app.get('/api/check-session', authenticate, (req, res) => {
+    res.json({ userId: req.user.id, isAdmin: req.user.isAdmin });
+});
+
+// Register
+app.post('/api/register', async (req, res) => {
+    try {
+        const { login, password, full_name, phone, email } = req.body;
+        if (!login || !password || !full_name || !phone || !email) {
+            return res.status(400).json({ message: 'Заполните все поля' });
+        }
+        const sanitizedLogin = sanitizeHtml(login.trim());
+        const sanitizedFullName = sanitizeHtml(full_name.trim());
+        const sanitizedPhone = sanitizeHtml(phone.trim());
+        const sanitizedEmail = sanitizeHtml(email.trim());
+        if (sanitizedLogin.length < 3) {
+            return res.status(400).json({ message: 'Логин должен быть длиннее 2 символов' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Пароль должен быть длиннее 5 символов' });
+        }
+        if (!sanitizedPhone.match(/^\+7\d{10}$/)) {
+            return res.status(400).json({ message: 'Неверный формат телефона' });
+        }
+        if (!sanitizedEmail.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+            return res.status(400).json({ message: 'Неверный формат email' });
+        }
+        db.get('SELECT id FROM users WHERE login = ?', [sanitizedLogin], async (err, row) => {
+            if (err) {
+                logger.error('Database error checking login:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            if (row) {
+                return res.status(400).json({ message: 'Логин уже занят' });
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            db.run(`
+                INSERT INTO users (login, password, full_name, phone, email, isAdmin)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `, [sanitizedLogin, hashedPassword, sanitizedFullName, sanitizedPhone, sanitizedEmail, false], function(err) {
+                if (err) {
+                    logger.error('Database error inserting user:', err.message);
+                    return res.status(500).json({ message: 'Ошибка сервера' });
+                }
+                logger.info('User registered:', sanitizedLogin);
+                res.status(201).json({ message: 'Регистрация успешна' });
+            });
+        });
+    } catch (error) {
+        logger.error('Register error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// Login
+app.post('/api/login', async (req, res) => {
+    try {
+        const { login, password } = req.body;
+        if (!login || !password) {
+            return res.status(400).json({ message: 'Заполните все поля' });
+        }
+        const sanitizedLogin = sanitizeHtml(login.trim());
+        db.get('SELECT * FROM users WHERE login = ?', [sanitizedLogin], async (err, user) => {
+            if (err) {
+                logger.error('Database error fetching user:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            if (!user || !(await bcrypt.compare(password, user.password))) {
+                logger.warn('Invalid login attempt:', sanitizedLogin);
+                return res.status(401).json({ message: 'Неверный логин или пароль' });
+            }
+            const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+            res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 1000 });
+            logger.info('User logged in:', sanitizedLogin);
+            res.json({ userId: user.id, isAdmin: user.isAdmin });
+        });
+    } catch (error) {
+        logger.error('Login error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// Logout
+app.post('/api/logout', (req, res) => {
+    res.clearCookie('token');
+    logger.info('User logged out');
+    res.json({ message: 'Выход выполнен' });
+});
+
+// Orders
+app.get('/api/orders', authenticate, (req, res) => {
+    db.all('SELECT * FROM orders WHERE user_id = ?', [req.user.id], (err, orders) => {
+        if (err) {
+            logger.error('Database error fetching orders:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        res.json(orders);
+    });
+});
+
+app.post('/api/orders', authenticate, async (req, res) => {
+    try {
+        const { address, phone, service_type, other_service, date_time, payment_type } = req.body;
+        if (!address || !phone || !date_time || !payment_type || (!service_type && !other_service)) {
+            return res.status(400).json({ message: 'Заполните все обязательные поля' });
+        }
+        const sanitizedAddress = sanitizeHtml(address.trim());
+        const sanitizedPhone = sanitizeHtml(phone.trim());
+        const sanitizedServiceType = sanitizeHtml(service_type ? service_type.trim() : '');
+        const sanitizedOtherService = sanitizeHtml(other_service ? other_service.trim() : '');
+        const sanitizedDateTime = sanitizeHtml(date_time.trim());
+        const sanitizedPaymentType = sanitizeHtml(payment_type.trim());
+        if (!sanitizedPhone.match(/^\+7\d{10}$/)) {
+            return res.status(400).json({ message: 'Неверный формат телефона' });
+        }
+        db.run(`
+            INSERT INTO orders (user_id, full_name, address, phone, service_type, other_service, date_time, payment_type, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+            req.user.id,
+            req.user.full_name,
+            sanitizedAddress,
+            sanitizedPhone,
+            sanitizedServiceType || 'Иная услуга',
+            sanitizedOtherService,
+            sanitizedDateTime,
+            sanitizedPaymentType,
+            'новая'
+        ], function(err) {
+            if (err) {
+                logger.error('Database error inserting order:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            logger.info('Order created:', this.lastID);
+            res.status(201).json({ message: 'Заявка создана' });
+        });
+    } catch (error) {
+        logger.error('Create order error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// Admin Orders
+app.get('/api/admin-orders', authenticate, isAdmin, (req, res) => {
+    db.all('SELECT * FROM orders', (err, orders) => {
+        if (err) {
+            logger.error('Database error fetching admin orders:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        res.json(orders);
+    });
+});
+
+app.patch('/api/admin-orders', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { id, status, cancel_reason } = req.body;
+        if (!id) {
+            return res.status(400).json({ message: 'ID заявки обязателен' });
+        }
+        db.get('SELECT * FROM orders WHERE id = ?', [id], (err, order) => {
+            if (err) {
+                logger.error('Database error fetching order:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            if (!order) {
+                return res.status(404).json({ message: 'Заявка не найдена' });
+            }
+            const sanitizedStatus = status ? sanitizeHtml(status.trim()) : order.status;
+            const sanitizedCancelReason = cancel_reason !== undefined ? sanitizeHtml(cancel_reason.trim()) : order.cancel_reason;
+            if (status && !['новая', 'в работе', 'выполнено', 'отменено'].includes(sanitizedStatus)) {
+                return res.status(400).json({ message: 'Неверный статус' });
+            }
+            if (cancel_reason !== undefined && sanitizedCancelReason && sanitizedCancelReason.length < 3) {
+                return res.status(400).json({ message: 'Причина отмены должна быть длиннее 2 символов' });
+            }
+            db.run(`
+                UPDATE orders SET status = ?, cancel_reason = ? WHERE id = ?
+            `, [sanitizedStatus, sanitizedCancelReason, id], (err) => {
+                if (err) {
+                    logger.error('Database error updating order:', err.message);
+                    return res.status(500).json({ message: 'Ошибка сервера' });
+                }
+                logger.info('Order updated:', id);
+                res.json({ message: status ? 'Статус обновлен' : 'Причина обновлена' });
+            });
+        });
+    } catch (error) {
+        logger.error('Update admin order error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// Services
+app.get('/api/services', (req, res) => {
+    db.all('SELECT * FROM services', (err, services) => {
+        if (err) {
+            logger.error('Database error fetching services:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        res.json(services);
+    });
+});
+
+app.post('/api/services', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { name, photo_url, description } = req.body;
+        const sanitizedName = sanitizeHtml(name ? name.trim() : '');
+        const sanitizedPhotoUrl = sanitizeHtml(photo_url ? photo_url.trim() : '');
+        const sanitizedDescription = sanitizeHtml(description ? description.trim() : '');
+        if (!sanitizedName || sanitizedName.length < 3) {
+            return res.status(400).json({ message: 'Название должно быть длиннее 2 символов' });
+        }
+        db.run(`
+            INSERT INTO services (name, photo_url, description)
+            VALUES (?, ?, ?)
+        `, [
+            sanitizedName,
+            sanitizedPhotoUrl || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
+            sanitizedDescription
+        ], function(err) {
+            if (err) {
+                logger.error('Database error inserting service:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            logger.info('Service created:', this.lastID);
+            res.status(201).json({ message: 'Услуга добавлена' });
+        });
+    } catch (error) {
+        logger.error('Create service error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+app.put('/api/services/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { name, photo_url, description } = req.body;
+        const id = parseInt(req.params.id);
+        const sanitizedName = sanitizeHtml(name ? name.trim() : '');
+        const sanitizedPhotoUrl = sanitizeHtml(photo_url ? photo_url.trim() : '');
+        const sanitizedDescription = sanitizeHtml(description ? description.trim() : '');
+        if (!sanitizedName || sanitizedName.length < 3) {
+            return res.status(400).json({ message: 'Название должно быть длиннее 2 символов' });
+        }
+        db.get('SELECT * FROM services WHERE id = ?', [id], (err, service) => {
+            if (err) {
+                logger.error('Database error fetching service:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            if (!service) {
+                return res.status(404).json({ message: 'Услуга не найдена' });
+            }
+            db.run(`
+                UPDATE services SET name = ?, photo_url = ?, description = ? WHERE id = ?
+            `, [
+                sanitizedName,
+                sanitizedPhotoUrl || service.photo_url,
+                sanitizedDescription || service.description,
+                id
+            ], (err) => {
+                if (err) {
+                    logger.error('Database error updating service:', err.message);
+                    return res.status(500).json({ message: 'Ошибка сервера' });
+                }
+                logger.info('Service updated:', id);
+                res.json({ message: 'Услуга обновлена' });
+            });
+        });
+    } catch (error) {
+        logger.error('Update service error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+app.delete('/api/services/:id', authenticate, isAdmin, (req, res) => {
+    const id = parseInt(req.params.id);
+    db.get('SELECT * FROM services WHERE id = ?', [id], (err, service) => {
+        if (err) {
+            logger.error('Database error fetching service:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        if (!service) {
+            return res.status(404).json({ message: 'Услуга не найдена' });
+        }
+        db.run('DELETE FROM services WHERE id = ?', [id], (err) => {
+            if (err) {
+                logger.error('Database error deleting service:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            logger.info('Service deleted:', id);
+            res.json({ message: 'Услуга удалена' });
+        });
+    });
+});
+
+// Content
+app.get('/api/content', (req, res) => {
+    db.get('SELECT * FROM content LIMIT 1', (err, content) => {
+        if (err) {
+            logger.error('Database error fetching content:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        res.json(content || {
+            home_title: 'Чистота с любовью!',
+            home_subtitle: 'Профессиональная уборка для дома и офиса.',
+            about_content: '«Мой Не Сам» — команда профессионалов, делающая дома и офисы чище с 2023 года.'
+        });
+    });
+});
+
+app.put('/api/content', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { home_title, home_subtitle, about_content } = req.body;
+        const sanitizedHomeTitle = sanitizeHtml(home_title ? home_title.trim() : '');
+        const sanitizedHomeSubtitle = sanitizeHtml(home_subtitle ? home_subtitle.trim() : '');
+        const sanitizedAboutContent = sanitizeHtml(about_content ? about_content.trim() : '');
+        if (!sanitizedHomeTitle || !sanitizedHomeSubtitle || !sanitizedAboutContent) {
+            return res.status(400).json({ message: 'Заполните все поля' });
+        }
+        db.run(`
+            INSERT OR REPLACE INTO content (id, home_title, home_subtitle, about_content)
+            VALUES (1, ?, ?, ?)
+        `, [sanitizedHomeTitle, sanitizedHomeSubtitle, sanitizedAboutContent], (err) => {
+            if (err) {
+                logger.error('Database error updating content:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            logger.info('Content updated');
+            res.json({ message: 'Контент обновлен' });
+        });
+    } catch (error) {
+        logger.error('Update content error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// Users
+app.get('/api/users', authenticate, isAdmin, (req, res) => {
+    db.all('SELECT id, login, full_name, phone, email FROM users', (err, users) => {
+        if (err) {
+            logger.error('Database error fetching users:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        res.json(users);
+    });
+});
+
+app.delete('/api/users/:id', authenticate, isAdmin, (req, res) => {
+    const id = parseInt(req.params.id);
+    if (id === req.user.id) {
+        return res.status(400).json({ message: 'Нельзя удалить самого себя' });
+    }
+    db.get('SELECT * FROM users WHERE id = ?', [id], (err, user) => {
+        if (err) {
+            logger.error('Database error fetching user:', err.message);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        if (!user) {
+            return res.status(404).json({ message: 'Пользователь не найден' });
+        }
+        db.run('DELETE FROM users WHERE id = ?', [id], (err) => {
+            if (err) {
+                logger.error('Database error deleting user:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            db.run('DELETE FROM orders WHERE user_id = ?', [id], (err) => {
+                if (err) {
+                    logger.error('Database error deleting user orders:', err.message);
+                }
+                logger.info('User deleted:', id);
+                res.json({ message: 'Пользователь удален' });
+            });
+        });
+    });
+});
+
+// CTA
+app.post('/api/cta', async (req, res) => {
+    try {
+        const { name, phone } = req.body;
+        if (!name || !phone) {
+            return res.status(400).json({ message: 'Заполните все поля' });
+        }
+        const sanitizedName = sanitizeHtml(name.trim());
+        const sanitizedPhone = sanitizeHtml(phone.trim());
+        if (!sanitizedPhone.match(/^\+7\d{10}$/)) {
+            return res.status(400).json({ message: 'Неверный формат телефона' });
+        }
+        db.run(`
+            INSERT INTO cta_submissions (name, phone)
+            VALUES (?, ?)
+        `, [sanitizedName, sanitizedPhone], function(err) {
+            if (err) {
+                logger.error('Database error inserting CTA:', err.message);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+            logger.info('CTA submission created:', this.lastID);
+            res.status(201).json({ message: 'Заявка отправлена' });
+        });
+    } catch (error) {
+        logger.error('CTA error:', error.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    logger.info(`Server running on http://localhost:${PORT}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM received. Closing server...');
+    db.close((err) => {
+        if (err) logger.error('Error closing database:', err.message);
+        logger.info('Database closed');
+        process.exit(0);
+    });
 });
