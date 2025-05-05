@@ -35,7 +35,9 @@ function initializeDatabase() {
         db.run(`
             CREATE TABLE IF NOT EXISTS Services (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT
+                name TEXT,
+                photo_url TEXT,
+                description TEXT
             )
         `);
         db.run(`
@@ -63,13 +65,29 @@ function initializeDatabase() {
 
         // Insert sample services
         const services = [
-            'общий клининг',
-            'генеральная уборка',
-            'последстроительная уборка',
-            'химчистка ковров и мебели'
+            { 
+                name: 'общий клининг', 
+                photo_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
+                description: 'Регулярная уборка для поддержания чистоты в доме или офисе.' 
+            },
+            { 
+                name: 'генеральная уборка', 
+                photo_url: 'https://images.unsplash.com/photo-1581578735767-152f38429b48?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
+                description: 'Глубокая уборка всех помещений с использованием профессиональных средств.' 
+            },
+            { 
+                name: 'последстроительная уборка', 
+                photo_url: 'https://images.unsplash.com/photo-1501183638710-841dd1904471?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
+                description: 'Удаление строительной пыли и мусора после ремонта.' 
+            },
+            { 
+                name: 'химчистка ковров и мебели', 
+                photo_url: 'https://images.unsplash.com/photo-1595428774223-d642f8f76b0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 
+                description: 'Глубокая чистка ковров и мягкой мебели с применением эко-средств.' 
+            }
         ];
-        services.forEach(name => {
-            db.run('INSERT OR IGNORE INTO Services (name) VALUES (?)', [name]);
+        services.forEach(({ name, photo_url, description }) => {
+            db.run('INSERT OR IGNORE INTO Services (name, photo_url, description) VALUES (?, ?, ?)', [name, photo_url, description]);
         });
 
         // Insert sample users
@@ -93,7 +111,7 @@ function initializeDatabase() {
             const user_id = i;
             const address = `Адрес ${i}`;
             const phone = `+7(900)-123-45-${i < 10 ? '0' + i : i}`;
-            const service_type = services[i % 4];
+            const service_type = services[i % 4].name;
             const date_time = new Date(`2025-06-${i < 10 ? '0' + i : i}`).toISOString();
             const payment_type = i % 2 ? 'наличные' : 'банковская карта';
             const status = statuses[i % 4];
@@ -195,11 +213,26 @@ app.post('/api/login', (req, res) => {
 });
 
 app.get('/api/services', (req, res) => {
-    db.all('SELECT * FROM Services', [], (err, rows) => {
+    db.all('SELECT id, name, photo_url, description FROM Services', [], (err, rows) => {
         if (err) {
+            console.error('Error fetching services:', err.message);
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
         res.json(rows);
+    });
+});
+
+app.get('/api/services/:id', (req, res) => {
+    const id = req.params.id;
+    db.get('SELECT id, name, photo_url, description FROM Services WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            console.error('Error fetching service:', err.message);
+            return res.status(500).json({ error: 'Ошибка сервера' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Услуга не найдена' });
+        }
+        res.json(row);
     });
 });
 
@@ -207,19 +240,54 @@ app.post('/api/services', authenticateToken, (req, res) => {
     if (!req.user.isAdmin) {
         return res.status(403).json({ error: 'Доступ запрещен' });
     }
-    const { name } = req.body;
+    const { name, photo_url, description } = req.body;
     const sanitizedName = sanitizeHtml(name);
+    const sanitizedPhotoUrl = photo_url ? sanitizeHtml(photo_url) : null;
+    const sanitizedDescription = description ? sanitizeHtml(description) : null;
     
     if (!sanitizedName || sanitizedName.length < 3) {
         return res.status(400).json({ error: 'Название услуги должно быть не короче 3 символов' });
     }
 
-    db.run('INSERT INTO Services (name) VALUES (?)', [sanitizedName], function(err) {
-        if (err) {
-            return res.status(500).json({ error: 'Ошибка сервера' });
+    db.run('INSERT INTO Services (name, photo_url, description) VALUES (?, ?, ?)', 
+        [sanitizedName, sanitizedPhotoUrl, sanitizedDescription], 
+        function(err) {
+            if (err) {
+                console.error('Error creating service:', err.message);
+                return res.status(500).json({ error: 'Ошибка сервера' });
+            }
+            res.json({ message: 'Услуга добавлена', id: this.lastID });
         }
-        res.json({ message: 'Услуга добавлена' });
-    });
+    );
+});
+
+app.put('/api/services/:id', authenticateToken, (req, res) => {
+    if (!req.user.isAdmin) {
+        return res.status(403).json({ error: 'Доступ запрещен' });
+    }
+    const id = req.params.id;
+    const { name, photo_url, description } = req.body;
+    const sanitizedName = sanitizeHtml(name);
+    const sanitizedPhotoUrl = photo_url ? sanitizeHtml(photo_url) : null;
+    const sanitizedDescription = description ? sanitizeHtml(description) : null;
+    
+    if (!sanitizedName || sanitizedName.length < 3) {
+        return res.status(400).json({ error: 'Название услуги должно быть не короче 3 символов' });
+    }
+
+    db.run('UPDATE Services SET name = ?, photo_url = ?, description = ? WHERE id = ?', 
+        [sanitizedName, sanitizedPhotoUrl, sanitizedDescription, id], 
+        function(err) {
+            if (err) {
+                console.error('Error updating service:', err.message);
+                return res.status(500).json({ error: 'Ошибка сервера' });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Услуга не найдена' });
+            }
+            res.json({ message: 'Услуга обновлена' });
+        }
+    );
 });
 
 app.delete('/api/services/:id', authenticateToken, (req, res) => {
@@ -229,6 +297,7 @@ app.delete('/api/services/:id', authenticateToken, (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM Services WHERE id = ?', [id], function(err) {
         if (err) {
+            console.error('Error deleting service:', err.message);
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
         if (this.changes === 0) {
@@ -241,6 +310,7 @@ app.delete('/api/services/:id', authenticateToken, (req, res) => {
 app.get('/api/orders', authenticateToken, (req, res) => {
     db.all('SELECT * FROM Orders WHERE user_id = ?', [req.user.id], (err, rows) => {
         if (err) {
+            console.error('Error fetching orders:', err.message);
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
         res.json(rows);
@@ -277,6 +347,7 @@ app.post('/api/orders', authenticateToken, (req, res) => {
         [req.user.id, sanitizedAddress, sanitizedPhone, sanitizedServiceType, sanitizedOtherService, sanitizedDateTime, sanitizedPaymentType, 'новая'], 
         function(err) {
             if (err) {
+                console.error('Error creating order:', err.message);
                 return res.status(500).json({ error: 'Ошибка сервера' });
             }
             res.json({ message: 'Заявка создана' });
@@ -290,7 +361,8 @@ app.get('/api/admin-orders', authenticateToken, (req, res) => {
     }
     db.all('SELECT Orders.*, Users.full_name FROM Orders JOIN Users ON Orders.user_id = Users.id', [], (err, rows) => {
         if (err) {
-            returnimgs
+            console.error('Error fetching admin orders:', err.message);
+            return res.status(500).json({ error: 'Ошибка сервера' });
         }
         res.json(rows);
     });
@@ -312,6 +384,7 @@ app.patch('/api/admin-orders', authenticateToken, (req, res) => {
         [sanitizedStatus, sanitizedCancelReason, id], 
         function(err) {
             if (err) {
+                console.error('Error updating order:', err.message);
                 return res.status(500).json({ error: 'Ошибка сервера' });
             }
             if (this.changes === 0) {
@@ -328,6 +401,7 @@ app.get('/api/users', authenticateToken, (req, res) => {
     }
     db.all('SELECT id, login, full_name, phone, email FROM Users WHERE login != "adminka"', [], (err, rows) => {
         if (err) {
+            console.error('Error fetching users:', err.message);
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
         res.json(rows);
@@ -341,19 +415,25 @@ app.delete('/api/users/:id', authenticateToken, (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM Users WHERE id = ? AND login != "adminka"', [id], function(err) {
         if (err) {
+            console.error('Error deleting user:', err.message);
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
         if (this.changes === 0) {
             return res.status(404).json({ error: 'Пользователь не найден' });
         }
-        db.run('DELETE FROM Orders WHERE user_id = ?', [id]);
-        res.json({ message: 'Пользователь удален' });
+        db.run('DELETE FROM Orders WHERE user_id = ?', [id], function(err) {
+            if (err) {
+                console.error('Error deleting user orders:', err.message);
+            }
+            res.json({ message: 'Пользователь удален' });
+        });
     });
 });
 
 app.get('/api/content', (req, res) => {
     db.all('SELECT key, value FROM Content', [], (err, rows) => {
         if (err) {
+            console.error('Error fetching content:', err.message);
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
         const content = {};
@@ -384,6 +464,7 @@ app.put('/api/content', authenticateToken, (req, res) => {
         db.run('INSERT OR REPLACE INTO Content (key, value) VALUES (?, ?)', ['about_content', sanitizedAboutContent], 
             function(err) {
                 if (err) {
+                    console.error('Error updating content:', err.message);
                     return res.status(500).json({ error: 'Ошибка сервера' });
                 }
                 res.json({ message: 'Контент обновлен' });
