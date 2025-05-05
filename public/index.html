@@ -42,312 +42,1014 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой Не Сам - Портал клининговых услуг</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Мой Не Сам - Профессиональная уборка</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/imask@7.6.1/dist/imask.min.js" integrity="sha256-4J3sNuFAL7y1vW7lX4y6qW5e0+PyN4r0O9OBj9tD8gY=" crossorigin="anonymous"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .hero-bg { background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1581578735767-152ba4a7e8e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center; }
-        .card { transition: transform 0.3s, box-shadow 0.3s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .nav-link:hover { color: #20C997; }
-        .tab-active { background-color: #20C997; color: white; }
-        .tab-inactive { background-color: #e5e7eb; color: #374151; }
-        .table-hover tbody tr:hover { background-color: #f3f4f6; }
-        @media (max-width: 640px) {
-            .hero-bg { padding: 2rem 1rem; }
-            .card { margin: 1rem 0; }
-            .tabs { flex-direction: column; }
+        :root {
+            --teal: #14B8A6;
+            --coral: #F87171;
+            --white: #FFFFFF;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --red-500: #EF4444;
+            --green-500: #10B981;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --spacing: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--white);
+            color: var(--gray-700);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--teal), var(--coral));
+            -webkit-background-clip: text;
+            color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 75%;
+            height: 100%;
+            background: var(--white);
+            padding: 32px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            flex-direction: column;
+        }
+
+        .nav-menu.active {
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .nav-link {
+            color: var(--gray-700);
+            font-size: 18px;
+            text-decoration: none;
+            margin: var(--spacing) 0;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--teal);
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-700);
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--teal), var(--coral));
+            color: var(--white);
+        }
+
+        .btn-red {
+            background: var(--red-500);
+            color: var(--white);
+        }
+
+        .btn-gray {
+            background: var(--gray-600);
+            color: var(--white);
+        }
+
+        .hero {
+            background: linear-gradient(to bottom right, var(--teal), var(--coral));
+            background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: var(--radius);
+            padding: 64px var(--spacing);
+            text-align: center;
+            color: var(--white);
+            margin: 32px 16px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: var(--spacing);
+        }
+
+        .hero p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto var(--spacing);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing);
+            margin: 32px 16px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: var(--spacing);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing);
+        }
+
+        .card i {
+            font-size: 40px;
+            color: var(--teal);
+            margin-bottom: var(--spacing);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .cta-form {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: var(--spacing);
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .cta-form input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: var(--spacing);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cta-form input:focus {
+            outline: none;
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+        }
+
+        .cta-form .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+        }
+
+        .cta-form .error {
+            color: var(--red-500);
+            font-size: 14px;
+            margin-bottom: var(--spacing);
+        }
+
+        .cta-form .success {
+            color: var(--green-500);
+            font-size: 14px;
+            margin-bottom: var(--spacing);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: var(--spacing);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--gray-600);
+            cursor: pointer;
+        }
+
+        .modal h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: var(--spacing);
+        }
+
+        .modal input,
+        .modal select,
+        .modal textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: var(--spacing);
+        }
+
+        .modal input:focus,
+        .modal select:focus,
+        .modal textarea:focus {
+            outline: none;
+            border-color: var(--teal);
+        }
+
+        .modal .error {
+            color: var(--red-500);
+            font-size: 12px;
+            margin-bottom: var(--spacing);
+        }
+
+        .modal .success {
+            color: var(--green-500);
+            font-size: 12px;
+            margin-bottom: var(--spacing);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: var(--spacing) 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--gray-100);
+            font-weight: 600;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .service-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: var(--spacing);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--gray-200);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(to right, var(--teal), var(--coral));
+            color: var(--white);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: var(--spacing);
+            right: var(--spacing);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .toast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--green-500);
+            color: var(--white);
+        }
+
+        .toast.error {
+            background: var(--red-500);
+            color: var(--white);
+        }
+
+        .section {
+            padding: 48px 0;
+            text-align: center;
+        }
+
+        .section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .testimonials { background: var(--gray-100); }
+        .stats { background: linear-gradient(to right, var(--teal), var(--coral)); color: var(--white); }
+        .cta { background: var(--gray-100); }
+
+        .testimonial-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto var(--spacing);
+        }
+
+        .faq-item {
+            margin-bottom: var(--spacing);
+            text-align: left;
+        }
+
+        .faq-item h3 {
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--gray-100);
+            border-radius: 8px;
+        }
+
+        .faq-item p {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 12px;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .faq-item.active p {
+            max-height: 200px;
+            padding: 12px;
+        }
+
+        .faq-item i {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active i {
+            transform: rotate(180deg);
+        }
+
+        footer {
+            background: var(--gray-900);
+            color: var(--white);
+            padding: 32px var(--spacing);
+        }
+
+        footer .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        footer h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        footer a, footer p {
+            font-size: 14px;
+            color: var(--gray-200);
+        }
+
+        footer a {
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        footer a:hover {
+            color: var(--teal);
+        }
+
+        @media (min-width: 768px) {
+            .nav-menu {
+                display: flex;
+                position: static;
+                width: auto;
+                height: auto;
+                padding: 0;
+                transform: none;
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .nav-link {
+                margin: 0 0 0 24px;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            footer .container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats .cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-md">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold text-blue-600">Мой Не Сам</div>
-            <div class="space-x-4">
-                <a href="#" class="nav-link text-gray-700 hover:text-teal-500" onclick="showHome()">Главная</a>
-                <a href="#" class="nav-link text-gray-700 hover:text-teal-500" onclick="showAbout()">О нас</a>
-                <a href="#" class="nav-link text-gray-700 hover:text-teal-500" onclick="showServices()">Услуги</a>
-                <a href="#" class="nav-link text-gray-700 hover:text-teal-500" onclick="showAuth()">Вход</a>
-                <a href="#" class="nav-link text-gray-700 hover:text-teal-500" onclick="showRegister()">Регистрация</a>
+<body>
+    <nav>
+        <div class="container">
+            <a href="#home" class="logo" onclick="showHome()">Мой Не Сам</a>
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link" onclick="showHome()">Главная</a>
+                <a href="#about" class="nav-link" onclick="showAbout()">О нас</a>
+                <a href="#services" class="nav-link" onclick="showServices()">Услуги</a>
+                <a href="#orders" class="nav-link" onclick="showOrders()">Мои заявки</a>
+                <a href="#" class="nav-link" onclick="openModal('auth')">Вход</a>
+                <a href="#" class="nav-link btn btn-primary" onclick="openModal('register')">Заказать</a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-8">
-        <!-- Home Page -->
+    <main class="container">
         <div id="home-page" class="fade-in">
-            <div class="hero-bg text-white text-center py-16 rounded-lg mb-8">
-                <h1 id="home-title" class="text-4xl md:text-5xl font-bold mb-4">Чистота начинается с нас!</h1>
-                <p id="home-subtitle" class="text-lg md:text-xl mb-6">Профессиональные клининговые услуги для вашего дома и офиса.</p>
-                <button onclick="showRegister()" class="bg-teal-500INGS text-white px-6 py-3 rounded-full hover:bg-teal-600">Заказать уборку</button>
+            <div class="hero">
+                <h1 id="home-title">Чистота с любовью!</h1>
+                <p id="home-subtitle">Профессиональная уборка для дома и офиса.</p>
+                <button class="btn btn-primary" onclick="openModal('register')">Заказать уборку</button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card bg-white p-6 rounded-lg shadow-md">
-                    <i class="fas fa-broom text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Быстро и качественно</h3>
-                    <p>Наши специалисты обеспечат идеальную чистоту в кратчайшие сроки.</p>
+            <div class="cards">
+                <div class="card">
+                    <i class="fas fa-broom"></i>
+                    <h3>Быстро и качественно</h3>
+                    <p>Идеальная чистота за пару часов.</p>
                 </div>
-                <div class="card bg-white p-6 rounded-lg shadow-md">
-                    <i class="fas fa-shield-alt text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Безопасные материалы</h3>
-                    <p>Используем экологичные и безопасные средства для уборки.</p>
+                <div class="card">
+                    <i class="fas fa-leaf"></i>
+                    <h3>Эко-материалы</h3>
+                    <p>Безопасно для вас и природы.</p>
                 </div>
-                <div class="card bg-white p-6 rounded-lg shadow-md">
-                    <i class="fas fa-clock text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Гибкий график</h3>
-                    <p>Выбирайте удобное время для уборки, мы подстроимся под вас.</p>
+                <div class="card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Гибкий график</h3>
+                    <p>Уборка в удобное время.</p>
                 </div>
             </div>
-        </div>
-
-        <!-- About Page -->
-        <div id="about-page" class="fade-in hidden">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">О нас</h2>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <p id="about-content" class="text-gray-600">«Мой Не Сам» — это ваш надежный партнер в создании чистоты и уюта. Мы предлагаем широкий спектр клининговых услуг для жилых и коммерческих помещений. Наша миссия — сделать вашу жизнь проще и комфортнее, предоставляя профессиональные услуги по уборке. С 2023 года мы помогаем тысячам клиентов поддерживать чистоту, используя современное оборудование и экологичные материалы. Доверьте уборку нам и наслаждайтесь свободным временем!</p>
-            </div>
-        </div>
-
-        <!-- Services Page -->
-        <div id="services-page" class="fade-in hidden">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Наши услуги</h2>
-            <div id="services-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-        </div>
-
-        <!-- Registration Form -->
-        <div id="register-form" class="fade-in hidden bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Регистрация</h2>
-            <div id="register-error" class="text-red-500 mb-4"></div>
-            <input type="text" id="reg-login" placeholder="Логин" class="w-full p-3 mb-4 border rounded-lg" required>
-            <input type="password" id="reg-password" placeholder="Пароль (мин. 6 символов)" class="w-full p-3 mb-4 border rounded-lg" required>
-            <input type="text" id="reg-fullname" placeholder="ФИО" class="w-full p-3 mb-4 border rounded-lg" required>
-            <input type="text" id="reg-phone" placeholder="Телефон (+7(XXX)-XXX-XX-XX)" class="w-full p-3 mb-4 border rounded-lg" required>
-            <input type="email" id="reg-email" placeholder="Email" class="w-full p-3 mb-4 border rounded-lg" required>
-            <button onclick="register()" class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600">Зарегистрироваться</button>
-            <p class="mt-4">Уже есть аккаунт? <a href="#" class="text-blue-600 hover:underline" onclick="showAuth()">Войти</a></p>
-        </div>
-
-        <!-- Authorization Form -->
-        <div id="auth-form" class="fade-in hidden bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Авторизация</h2>
-            <div id="auth-error" class="text-red-500 mb-4"></div>
-            <input type="text" id="auth-login" placeholder="Логин" class="w-full p-3 mb-4 border rounded-lg" required>
-            <input type="password" id="auth-password" placeholder="Пароль" class="w-full p-3 mb-4 border rounded-lg" required>
-            <button onclick="login()" class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600">Войти</button>
-            <p class="mt-4">Нет аккаунта? <a href="#" class="text-blue-600 hover:underline" onclick="showRegister()">Зарегистрироваться</a></p>
-        </div>
-
-        <!-- Orders Page -->
-        <div id="orders-page" class="fade-in hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Мои заявки</h2>
-            <button onclick="showOrderForm()" class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 mb-4">Создать заявку</button>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <table class="w-full table-hover">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-3 text-left">Адрес</th>
-                            <th class="p-3 text-left">Услуга</th>
-                            <th class="p-3 text-left">Дата и время</th>
-                            <th class="p-3 text-left">Оплата</th>
-                            <th class="p-3 text-left">Статус</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-table-body"></tbody>
-                </table>
-            </div>
-            <button onclick="logout()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 mt-4">Выйти</button>
-        </div>
-
-        <!-- Order Form -->
-        <div id="order-form" class="fade-in hidden bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Новая заявка</h2>
-            <div id="order-error" class="text-red-500 mb-4"></div>
-            <input type="text" id="order-address" placeholder="Адрес" class="w-full p-3 mb-4 border rounded-lg" required>
-            <input type="text" id="order-phone" placeholder="Телефон (+7(XXX)-XXX-XX-XX)" class="w-full p-3 mb-4 border rounded-lg" required>
-            <select id="order-service" class="w-full p-3 mb-4 border rounded-lg" required>
-                <option value="">Выберите услугу</option>
-            </select>
-            <label class="flex items-center mb-4">
-                <input type="checkbox" id="other-service-check" onclick="toggleOtherService()" class="mr-2"> Иная услуга
-            </label>
-            <textarea id="other-service" placeholder="Опишите услугу" class="w-full p-3 mb-4 border rounded-lg hidden"></textarea>
-            <input type="datetime-local" id="order-datetime" class="w-full p-3 mb-4 border rounded-lg" required>
-            <select id="order-payment" class="w-full p-3 mb-4 border rounded-lg" required>
-                <option value="">Тип оплаты</option>
-                <option value="наличные">Наличные</option>
-                <option value="банковская карта">Банковская карта</option>
-            </select>
-            <button onclick="submitOrder()" class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600">Отправить заявку</button>
-            <button onclick="showOrders()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 ml-2">Назад</button>
-        </div>
-
-        <!-- Admin Panel -->
-        <div id="admin-panel" class="fade-in hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Панель администратора</h2>
-            <div class="flex tabs mb-4">
-                <button class="px-4 py-2 rounded-l-lg tab-inactive" onclick="showAdminTab('orders')" id="tab-orders">Заявки</button>
-                <button class="px-4 py-2 tab-inactive" onclick="showAdminTab('users')" id="tab-users">Пользователи</button>
-                <button class="px-4 py-2 rounded-r-lg tab-inactive" onclick="showAdminTab('content')" id="tab-content">Контент</button>
-            </div>
-            <!-- Orders Tab -->
-            <div id="admin-orders" class="bg-white p-6 rounded-lg shadow-md">
-                <table class="w-full table-hover">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-3 text-left">ФИО</th>
-                            <th class="p-3 text-left">Адрес</th>
-                            <th class="p-3 text-left">Телефон</th>
-                            <th class="p-3 text-left">Услуга</th>
-                            <th class="p-3 text-left">Дата и время</th>
-                            <th class="p-3 text-left">Оплата</th>
-                            <th class="p-3 text-left">Статус</th>
-                            <th class="p-3 text-left">Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-orders-table-body"></tbody>
-                </table>
-            </div>
-            <!-- Users Tab -->
-            <div id="admin-users" class="bg-white p-6 rounded-lg shadow-md hidden">
-                <table class="w-full table-hover">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-3 text-left">Логин</th>
-                            <th class="p-3 text-left">ФИО</th>
-                            <th class="p-3 text-left">Телефон</th>
-                            <th class="p-3 text-left">Email</th>
-                            <th class="p-3 text-left">Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-users-table-body"></tbody>
-                </table>
-            </div>
-            <!-- Content Tab -->
-            <div id="admin-content" class="bg-white p-6 rounded-lg shadow-md hidden">
-                <h3 class="text-xl font-semibold mb-4">Управление услугами</h3>
-                <div class="mb-6">
-                    <input type="text" id="new-service" placeholder="Название новой услуги" class="w-full p-3 mb-4 border rounded-lg">
-                    <button onclick="addService()" class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600">Добавить услугу</button>
-                    <div id="services-error" class="text-red-500 mt-2"></div>
+            <section class="section stats">
+                <h2>Наши достижения</h2>
+                <div class="cards">
+                    <div class="card">
+                        <h3>2+</h3>
+                        <p>Года работы</p>
+                    </div>
+                    <div class="card">
+                        <h3>5000+</h3>
+                        <p>Клиентов</p>
+                    </div>
+                    <div class="card">
+                        <h3>100%</h3>
+                        <p>Эко-материалы</p>
+                    </div>
+                    <div class="card">
+                        <h3>24/7</h3>
+                        <p>Поддержка</p>
+                    </div>
                 </div>
-                <table class="w-full table-hover mb-6">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-3 text-left">Название услуги</th>
-                            <th class="p-3 text-left">Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-services-table-body"></tbody>
-                </table>
-                <h3 class="text-xl font-semibold mb-4">Управление контентом</h3>
-                <div id="content-error" class="text-red-500 mb-4"></div>
-                <label class="block mb-2">Заголовок главной страницы</label>
-                <input type="text" id="content-home-title" class="w-full p-3 mb-4 border rounded-lg">
-                <label class="block mb-2">Подзаголовок главной страницы</label>
-                <input type="text" id="content-home-subtitle" class="w-full p-3 mb-4 border rounded-lg">
-                <label class="block mb-2">Текст страницы "О нас"</label>
-                <textarea id="content-about" class="w-full p-3 mb-4 border rounded-lg" rows="5"></textarea>
-                <button onclick="updateContent()" class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600">Сохранить изменения</button>
+            </section>
+            <section class="section testimonials">
+                <h2>Что говорят клиенты</h2>
+                <div class="cards">
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Анна">
+                        <p>«Мой дом сияет! Быстро и профессионально.»</p>
+                        <h3>Анна С.</h3>
+                    </div>
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Игорь">
+                        <p>«Эко-уборка на высоте, рекомендую!»</p>
+                        <h3>Игорь П.</h3>
+                    </div>
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Мария">
+                        <p>«Офис как новый, спасибо!»</p>
+                        <h3>Мария Т.</h3>
+                    </div>
+                </div>
+            </section>
+            <section class="section cta">
+                <h2>Готовы к чистоте?</h2>
+                <p>Оставьте заявку, и мы сделаем ваш дом идеальным!</p>
+                <div class="cta-form">
+                    <div id="cta-error" class="error"></div>
+                    <div id="cta-success" class="success"></div>
+                    <input type="text" id="cta-name" placeholder="Ваше имя" aria-label="Ваше имя" required>
+                    <input type="text" id="cta-phone" placeholder="+7 (XXX) XXX-XX-XX" aria-label="Ваш телефон" required>
+                    <button class="btn btn-primary" onclick="submitCta()">
+                        <span id="cta-btn-text">Отправить заявку</span>
+                        <i id="cta-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div id="about-page" class="fade-in" style="display: none;">
+            <section class="section">
+                <h2>О нас</h2>
+                <div class="card">
+                    <p id="about-content">«Мой Не Сам» — команда профессионалов, делающая дома и офисы чище с 2023 года. Мы используем экологичные материалы и современное оборудование.</p>
+                </div>
+            </section>
+            <section class="section">
+                <h2>Наша команда</h2>
+                <div class="cards">
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1519085360753-afccb3ee771f?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Екатерина">
+                        <h3>Екатерина М.</h3>
+                        <p>Руководитель</p>
+                    </div>
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1506794778202-6d6d6b2a6a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Алексей">
+                        <h3>Алексей П.</h3>
+                        <p>Специалист</p>
+                    </div>
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&q=80" alt="Ольга">
+                        <h3>Ольга С.</h3>
+                        <p>Менеджер</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="services-page" class="fade-in" style="display: none;">
+            <section class="section">
+                <h2>Наши услуги</h2>
+                <div id="services-list" class="cards"></div>
+            </section>
+            <section class="section">
+                <h2>Часто задаваемые вопросы</h2>
+                <div class="faq-item">
+                    <h3 onclick="toggleFaq(this)">Как долго длится уборка? <i class="fas fa-chevron-down"></i></h3>
+                    <p>Стандартная уборка квартиры занимает 2–4 часа.</p>
+                </div>
+                <div class="faq-item">
+                    <h3 onclick="toggleFaq(this)">Безопасны ли ваши средства? <i class="fas fa-chevron-down"></i></h3>
+                    <p>Мы используем сертифицированные эко-средства.</p>
+                </div>
+                <div class="faq-item">
+                    <h3 onclick="toggleFaq(this)">Работаете ли вы в выходные? <i class="fas fa-chevron-down"></i></h3>
+                    <p>Да, мы доступны 7 дней в неделю.</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="orders-page" class="fade-in" style="display: none;">
+            <section class="section">
+                <h2>Мои заявки</h2>
+                <button class="btn btn-primary" onclick="openModal('order')">Создать заявку</button>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Адрес</th>
+                                <th>Услуга</th>
+                                <th>Дата</th>
+                                <th>Оплата</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body"></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-red" onclick="logout()">Выйти</button>
+            </section>
+        </div>
+
+        <div id="admin-panel" class="fade-in" style="display: none;">
+            <section class="section">
+                <h2>Панель администратора</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" id="tab-orders" onclick="showAdminTab('orders')">Заявки</button>
+                    <button class="tab-btn" id="tab-users" onclick="showAdminTab('users')">Пользователи</button>
+                    <button class="tab-btn" id="tab-content" onclick="showAdminTab('content')">Контент</button>
+                </div>
+                <div id="admin-orders" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Адрес</th>
+                                <th>Телефон</th>
+                                <th>Услуга</th>
+                                <th>Дата</th>
+                                <th>Оплата</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-table-body"></tbody>
+                    </table>
+                </div>
+                <div id="admin-users" class="table-container" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Логин</th>
+                                <th>ФИО</th>
+                                <th>Телефон</th>
+                                <th>Email</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-table-body"></tbody>
+                    </table>
+                </div>
+                <div id="admin-content" class="card" style="display: none;">
+                    <h3>Управление услугами</h3>
+                    <input type="text" id="new-service" placeholder="Название услуги" aria-label="Название услуги">
+                    <input type="url" id="new-service-photo" placeholder="URL фото услуги" aria-label="URL фото услуги">
+                    <textarea id="new-service-description" placeholder="Описание услуги" rows="4" aria-label="Описание услуги"></textarea>
+                    <button class="btn btn-primary" onclick="addService()">Добавить</button>
+                    <div id="services-error" class="error"></div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Фото</th>
+                                    <th>Услуга</th>
+                                    <th>Описание</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-services-table-body"></tbody>
+                        </table>
+                    </div>
+                    <h3 style="margin-top: var(--spacing);">Управление контентом</h3>
+                    <div id="content-error" class="error"></div>
+                    <label>Заголовок главной</label>
+                    <input type="text" id="content-home-title" aria-label="Заголовок главной">
+                    <label>Подзаголовок главной</label>
+                    <input type="text" id="content-home-subtitle" aria-label="Подзаголовок главной">
+                    <label>Текст "О нас"</label>
+                    <textarea id="content-about" rows="4" aria-label="Текст О нас"></textarea>
+                    <button class="btn btn-primary" onclick="updateContent()">Сохранить</button>
+                </div>
+                <button class="btn btn-red" onclick="logout()">Выйти</button>
+            </section>
+        </div>
+    </main>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <div id="register-form" style="display: none;">
+                <h2>Регистрация</h2>
+                <div id="register-error" class="error"></div>
+                <input type="text" id="reg-login" placeholder="Логин" aria-label="Логин">
+                <input type="password" id="reg-password" placeholder="Пароль (мин. 6 символов)" aria-label="Пароль">
+                <input type="text" id="reg-fullname" placeholder="ФИО" aria-label="ФИО">
+                <input type="text" id="reg-phone" placeholder="+7 (XXX) XXX-XX-XX" aria-label="Телефон">
+                <input type="email" id="reg-email" placeholder="Email" aria-label="Email">
+                <button class="btn btn-primary" onclick="register()">
+                    <span id="reg-btn-text">Зарегистрироваться</span>
+                    <i id="reg-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
+                </button>
+                <p>Уже есть аккаунт? <a href="#" onclick="openModal('auth')">Войти</a></p>
             </div>
-            <button onclick="logout()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 mt-4">Выйти</button>
+            <div id="auth-form" style="display: none;">
+                <h2>Авторизация</h2>
+                <div id="auth-error" class="error"></div>
+                <input type="text" id="auth-login" placeholder="Логин" aria-label="Логин">
+                <input type="password" id="auth-password" placeholder="Пароль" aria-label="Пароль">
+                <button class="btn btn-primary" onclick="login()">
+                    <span id="auth-btn-text">Войти</span>
+                    <i id="auth-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
+                </button>
+                <p>Нет аккаунта? <a href="#" onclick="openModal('register')">Зарегистрироваться</a></p>
+            </div>
+            <div id="order-form" style="display: none;">
+                <h2>Новая заявка</h2>
+                <div id="order-error" class="error"></div>
+                <input type="text" id="order-address" placeholder="Адрес" aria-label="Адрес">
+                <input type="text" id="order-phone" placeholder="+7 (XXX) XXX-XX-XX" aria-label="Телефон">
+                <select id="order-service" aria-label="Услуга">
+                    <option value="">Выберите услугу</option>
+                </select>
+                <label><input type="checkbox" id="other-service-check" onclick="toggleOtherService()"> Иная услуга</label>
+                <textarea id="other-service" placeholder="Опишите услугу" style="display: none;" aria-label="Иная услуга"></textarea>
+                <input type="datetime-local" id="order-datetime" aria-label="Дата и время">
+                <select id="order-payment" aria-label="Тип оплаты">
+                    <option value="">Тип оплаты</option>
+                    <option value="наличные">Наличные</option>
+                    <option value="карта">Карта</option>
+                </select>
+                <button class="btn btn-primary" onclick="submitOrder()">
+                    <span id="order-btn-text">Отправить</span>
+                    <i id="order-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
+                </button>
+            </div>
+            <div id="edit-service-form" style="display: none;">
+                <h2>Редактировать услугу</h2>
+                <div id="edit-service-error" class="error"></div>
+                <input type="text" id="edit-service-name" placeholder="Название услуги" aria-label="Название услуги">
+                <input type="url" id="edit-service-photo" placeholder="URL фото услуги" aria-label="URL фото услуги">
+                <textarea id="edit-service-description" placeholder="Описание услуги" rows="4" aria-label="Описание услуги"></textarea>
+                <button class="btn btn-primary" onclick="updateService()">
+                    <span id="edit-service-btn-text">Сохранить</span>
+                    <i id="edit-service-btn-spinner" class="fas fa-spinner fa-spin" style="display: none; margin-left: 8px;"></i>
+                </button>
+                <button class="btn btn-gray" onclick="closeModal()">Отмена</button>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Мой Не Сам</h3>
-                    <p>Профессиональные клининговые услуги для вашего комфорта.</p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
-                    <p>Email: info@moynesam.ru</p>
-                    <p>Телефон: +7(800)-123-45-67</p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Ссылки</h3>
-                    <a href="#" class="block hover:text-teal-500" onclick="showHome()">Главная</a>
-                    <a href="#" class="block hover:text-teal-500" onclick="showAbout()">О нас</a>
-                    <a href="#" class="block hover:text-teal-500" onclick="showServices()">Услуги</a>
-                </div>
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div>
+                <h3>Мой Не Сам</h3>
+                <p>Клининг для вашего комфорта.</p>
             </div>
-            <div class="mt-6 text-center">
-                <p>© 2025 Мой Не Сам. Все права защищены.</p>
+            <div>
+                <h3>Контакты</h3>
+                <p>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adc4c3cbc2edcec2c0ccc1d4c283dfd8">[email&#160;protected]</a></p>
+                <p>Телефон: +7(800)-123-45-67</p>
+            </div>
+            <div>
+                <h3>Ссылки</h3>
+                <a href="#home" onclick="showHome()">Главная</a>
+                <a href="#about" onclick="showAbout()">О нас</a>
+                <a href="#services" onclick="showServices()">Услуги</a>
             </div>
         </div>
     </footer>
 
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
+        const API_BASE_URL = window.location.origin; // Adjust if backend is on a different domain
         let token = localStorage.getItem('token');
         let userId = localStorage.getItem('userId');
         let isAdmin = localStorage.getItem('isAdmin') === 'true';
-        let currentAdminTab = 'orders';
+        let isMenuOpen = false;
+        let currentServiceId = null;
+
+        async function apiCall(url, method = 'GET', body = null, auth = false) {
+            const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+            const headers = { 'Content-Type': 'application/json' };
+            if (auth && token) headers['Authorization'] = `Bearer ${token}`;
+            try {
+                console.log(`API Request: ${method} ${fullUrl}`);
+                const response = await fetch(fullUrl, { method, headers, body: body ? JSON.stringify(body) : null });
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error(`API Error: Status ${response.status}, URL: ${fullUrl}, Response: ${text}`);
+                    if (response.status === 404) {
+                        throw new Error('Запрашиваемый ресурс не найден');
+                    }
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error(`Non-JSON response from ${fullUrl}: ${text}`);
+                    throw new Error('Получен неверный формат ответа от сервера');
+                }
+                return await response.json();
+            } catch (e) {
+                showToast(e.message, true);
+                throw e;
+            }
+        }
+
+        function initPhoneMasks() {
+            ['reg-phone', 'order-phone', 'cta-phone'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) IMask(input, { mask: '+7(000)-000-00-00', lazy: false });
+            });
+        }
+
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            document.querySelector('.nav-menu').classList.toggle('active', isMenuOpen);
+        }
+
+        function openModal(form, serviceId = null) {
+            document.querySelectorAll('.modal-content > div').forEach(el => el.style.display = 'none');
+            const formElement = document.getElementById(`${form}-form`);
+            if (!formElement) return showToast('Форма не найдена', true);
+            formElement.style.display = 'block';
+            document.getElementById('modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (form === 'order') fetchServicesForOrder();
+            if (form === 'edit-service' && serviceId) {
+                currentServiceId = serviceId;
+                fetchServiceForEdit(serviceId);
+            }
+            initPhoneMasks();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            document.querySelectorAll('.modal .error, .modal .success').forEach(el => el.textContent = '');
+            currentServiceId = null;
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('success', 'error');
+            toast.classList.add(isError ? 'error' : 'success', 'active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        function hideAll() {
+            document.querySelectorAll('.fade-in').forEach(el => el.style.display = 'none');
+            closeModal();
+            if (isMenuOpen) toggleMenu();
+        }
 
         function showHome() {
             hideAll();
-            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('home-page').style.display = 'block';
             fetchContent();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showAbout() {
             hideAll();
-            document.getElementById('about-page').classList.remove('hidden');
+            document.getElementById('about-page').style.display = 'block';
             fetchContent();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showServices() {
             hideAll();
-            document.getElementById('services-page').classList.remove('hidden');
+            document.getElementById('services-page').style.display = 'block';
             fetchServices();
-        }
-
-        function showRegister() {
-            hideAll();
-            document.getElementById('register-form').classList.remove('hidden');
-        }
-
-        function showAuth() {
-            hideAll();
-            document.getElementById('auth-form').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showOrders() {
+            if (!token) return openModal('auth');
             hideAll();
-            document.getElementById('orders-page').classList.remove('hidden');
+            document.getElementById('orders-page').style.display = 'block';
             fetchOrders();
-        }
-
-        function showOrderForm() {
-            hideAll();
-            document.getElementById('order-form').classList.remove('hidden');
-            fetchServicesForOrder();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showAdminPanel() {
+            if (!token) return openModal('auth');
+            if (!isAdmin) return showToast('Доступ только для администраторов', true);
             hideAll();
-            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('admin-panel').style.display = 'block';
             showAdminTab('orders');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showAdminTab(tab) {
-            currentAdminTab = tab;
-            document.getElementById('admin-orders').classList.add('hidden');
-            document.getElementById('admin-users').classList.add('hidden');
-            document.getElementById('admin-content').classList.add('hidden');
-            document.getElementById(`tab-orders`).classList.remove('tab-active');
-            document.getElementById(`tab-users`).classList.remove('tab-active');
-            document.getElementById(`tab-content`).classList.remove('tab-active');
-            document.getElementById(`tab-${tab}`).classList.add('tab-active');
-            document.getElementById(`admin-${tab}`).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            ['admin-orders', 'admin-users', 'admin-content'].forEach(id => document.getElementById(id).style.display = 'none');
+            document.getElementById(`admin-${tab}`).style.display = 'block';
             if (tab === 'orders') fetchAdminOrders();
             if (tab === 'users') fetchUsers();
             if (tab === 'content') {
@@ -356,68 +1058,65 @@
             }
         }
 
-        function hideAll() {
-            document.querySelectorAll('.fade-in').forEach(el => el.classList.add('hidden'));
+        function toggleOtherService() {
+            const check = document.getElementById('other-service-check');
+            const textarea = document.getElementById('other-service');
+            const select = document.getElementById('order-service');
+            textarea.style.display = check.checked ? 'block' : 'none';
+            textarea.required = check.checked;
+            select.required = !check.checked;
         }
 
-        function toggleOtherService() {
-            const checkbox = document.getElementById('other-service-check');
-            const textarea = document.getElementById('other-service');
-            textarea.classList.toggle('hidden', !checkbox.checked);
-            textarea.required = checkbox.checked;
+        function toggleFaq(element) {
+            element.parentElement.classList.toggle('active');
         }
 
         async function fetchContent() {
             try {
-                const response = await fetch('/api/content');
-                const content = await response.json();
-                document.getElementById('home-title').textContent = content.home_title || 'Чистота начинается с нас!';
-                document.getElementById('home-subtitle').textContent = content.home_subtitle || 'Профессиональные клининговые услуги для вашего дома и офиса.';
-                document.getElementById('about-content').textContent = content.about_content || '«Мой Не Сам» — это ваш надежный партнер в создании чистоты и уюта...';
+                const content = await apiCall('/api/content');
+                document.getElementById('home-title').textContent = content.home_title || 'Чистота с любовью!';
+                document.getElementById('home-subtitle').textContent = content.home_subtitle || 'Профессиональная уборка для дома и офиса.';
+                document.getElementById('about-content').textContent = content.about_content || '«Мой Не Сам» — команда профессионалов...';
             } catch (e) {
-                console.error('Ошибка загрузки контента');
+                console.error('Fetch content error:', e.message);
             }
         }
 
         async function fetchContentForAdmin() {
             try {
-                const response = await fetch('/api/content', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const content = await response.json();
+                const content = await apiCall('/api/content', 'GET', null, true);
                 document.getElementById('content-home-title').value = content.home_title || '';
                 document.getElementById('content-home-subtitle').value = content.home_subtitle || '';
                 document.getElementById('content-about').value = content.about_content || '';
             } catch (e) {
-                console.error('Ошибка загрузки контента для админа');
+                showToast('Ошибка загрузки контента: ' + e.message, true);
             }
         }
 
         async function fetchServices() {
             try {
-                const response = await fetch('/api/services');
-                const services = await response.json();
+                const services = await apiCall('/api/services');
                 const list = document.getElementById('services-list');
-                list.innerHTML = '';
+                list.innerHTML = services.length ? '' : '<p>Услуги не найдены</p>';
                 services.forEach(service => {
-                    const div = document.createElement('div');
-                    div.className = 'card bg-white p-6 rounded-lg shadow-md';
-                    div.innerHTML = `
-                        <img src="https://images.unsplash.com/photo-1581578735767-152ba4a7e8e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="${service.name}" class="w-full h-48 object-cover rounded-t-lg mb-4">
-                        <h3 class="text-xl font-semibold mb-2">${service.name}</h3>
-                        <p class="text-gray-600">Профессиональная услуга для вашего комфорта.</p>
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${service.photo_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'}" alt="${service.name}">
+                        <h3>${service.name}</h3>
+                        <p>${service.description || 'Профессиональная уборка.'}</p>
+                        <button class="btn btn-primary" onclick="openModal('order')">Заказать</button>
                     `;
-                    list.appendChild(div);
+                    list.appendChild(card);
                 });
             } catch (e) {
-                console.error('Ошибка загрузки услуг');
+                showToast('Ошибка загрузки услуг: ' + e.message, true);
             }
         }
 
         async function fetchServicesForOrder() {
             try {
-                const response = await fetch('/api/services');
-                const services = await response.json();
+                const services = await apiCall('/api/services');
                 const select = document.getElementById('order-service');
                 select.innerHTML = '<option value="">Выберите услугу</option>';
                 services.forEach(service => {
@@ -427,355 +1126,390 @@
                     select.appendChild(option);
                 });
             } catch (e) {
-                console.error('Ошибка загрузки услуг для заказа');
+                showToast('Ошибка загрузки услуг: ' + e.message, true);
             }
         }
 
         async function fetchServicesForAdmin() {
             try {
-                const response = await fetch('/api/services', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const services = await response.json();
+                const services = await apiCall('/api/services', 'GET', null, true);
                 const tbody = document.getElementById('admin-services-table-body');
-                tbody.innerHTML = '';
+                tbody.innerHTML = services.length ? '' : '<tr><td colspan="4">Услуги не найдены</td></tr>';
                 services.forEach(service => {
+                    if (!service.id) return;
                     const tr = document.createElement('tr');
+                    const truncatedDescription = service.description && service.description.length > 50 
+                        ? service.description.substring(0, 47) + '...' 
+                        : service.description || '';
                     tr.innerHTML = `
-                        <td class="p-3">${service.name}</td>
-                        <td class="p-3">
-                            <button onclick="deleteService(${service.id})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Удалить</button>
+                        <td><img src="${service.photo_url || 'https://via.placeholder.com/50'}" class="service-img" alt=${
+                          service.name}"></td>
+                        <td>${service.name}</td>
+                        <td>${truncatedDescription}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openModal('edit-service', ${service.id})">Редактировать</button>
+                            <button class="btn btn-red" onclick="deleteService(${service.id})">Удалить</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (e) {
-                console.error('Ошибка загрузки услуг для админа');
+                showToast('Ошибка загрузки услуг: ' + e.message, true);
+            }
+        }
+
+        async function fetchServiceForEdit(id) {
+            const nameInput = document.getElementById('edit-service-name');
+            const photoInput = document.getElementById('edit-service-photo');
+            const descInput = document.getElementById('edit-service-description');
+            const error = document.getElementById('edit-service-error');
+            if (!nameInput || !photoInput || !descInput || !error) {
+                showToast('Ошибка: форма редактирования недоступна', true);
+                return;
+            }
+            nameInput.value = '';
+            photoInput.value = '';
+            descInput.value = '';
+            error.textContent = '';
+            try {
+                const service = await apiCall(`/api/services/${id}`, 'GET', null, true);
+                console.log('Service data:', service);
+                nameInput.value = service?.name || '';
+                photoInput.value = service?.photo_url || '';
+                descInput.value = service?.description || '';
+            } catch (e) {
+                console.error('Fetch service error:', e.message);
+                error.textContent = `Ошибка загрузки услуги: ${e.message}`;
+                error.classList.add('error');
+                showToast(`Ошибка загрузки услуги: ${e.message}`, true);
             }
         }
 
         async function addService() {
-            const name = document.getElementById('new-service').value;
-            const errorDiv = document.getElementById('services-error');
-            if (!name || name.length < 3) {
-                errorDiv.textContent = 'Название услуги должно быть не короче 3 символов';
-                return;
+            const name = document.getElementById('new-service').value.trim();
+            const photoUrl = document.getElementById('new-service-photo').value.trim();
+            const description = document.getElementById('new-service-description').value.trim();
+            const error = document.getElementById('services-error');
+            if (!error) return showToast('Ошибка: элемент формы не найден', true);
+            if (name.length < 3) {
+                error.textContent = 'Название должно быть длиннее 2 символов';
+                return showToast('Название слишком короткое', true);
             }
             try {
-                const response = await fetch('/api/services', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ name })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    document.getElementById('new-service').value = '';
-                    errorDiv.className = 'text-green-500';
-                    errorDiv.textContent = result.message;
-                    fetchServicesForAdmin();
-                } else {
-                    errorDiv.textContent = result.error || 'Ошибка добавления услуги';
-                }
+                const result = await apiCall('/api/services', 'POST', { name, photo_url: photoUrl, description }, true);
+                document.getElementById('new-service').value = '';
+                document.getElementById('new-service-photo').value = '';
+                document.getElementById('new-service-description').value = '';
+                error.classList.remove('error');
+                error.classList.add('success');
+                error.textContent = result.message || 'Услуга добавлена';
+                fetchServicesForAdmin();
+                showToast(result.message || 'Услуга добавлена');
             } catch (e) {
-                errorDiv.textContent = 'Ошибка сервера';
+                error.classList.add('error');
+                error.textContent = e.message || 'Ошибка добавления услуги';
+                showToast(e.message || 'Ошибка добавления услуги', true);
+            }
+        }
+
+        async function updateService() {
+            const name = document.getElementById('edit-service-name').value.trim();
+            const photoUrl = document.getElementById('edit-service-photo').value.trim();
+            const description = document.getElementById('edit-service-description').value.trim();
+            const error = document.getElementById('edit-service-error');
+            const btnText = document.getElementById('edit-service-btn-text');
+            const spinner = document.getElementById('edit-service-btn-spinner');
+            if (!error) return showToast('Ошибка: элемент формы не найден', true);
+            if (name.length < 3) {
+                error.textContent = 'Название должно быть длиннее 2 символов';
+                return showToast('Название слишком короткое', true);
+            }
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline';
+            try {
+                const result = await apiCall(`/api/services/${currentServiceId}`, 'PUT', { name, photo_url: photoUrl, description }, true);
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.classList.remove('error');
+                error.classList.add('success');
+                error.textContent = result.message || 'Услуга обновлена';
+                fetchServicesForAdmin();
+                showToast(result.message || 'Услуга обновлена');
+                setTimeout(closeModal, 2000);
+            } catch (e) {
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.classList.remove('success');
+                error.classList.add('error');
+                error.textContent = e.message || 'Ошибка обновления услуги';
+                showToast(e.message || 'Ошибка обновления услуги', true);
             }
         }
 
         async function deleteService(id) {
             if (!confirm('Вы уверены, что хотите удалить эту услугу?')) return;
             try {
-                const response = await fetch(`/api/services/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    fetchServicesForAdmin();
-                } else {
-                    alert(result.error || 'Ошибка удаления услуги');
-                }
+                const result = await apiCall(`/api/services/${id}`, 'DELETE', null, true);
+                fetchServicesForAdmin();
+                showToast(result.message || 'Услуга удалена');
             } catch (e) {
-                alert('Ошибка сервера');
+                showToast(e.message || 'Ошибка удаления услуги', true);
             }
         }
 
         async function updateContent() {
-            const homeTitle = document.getElementById('content-home-title').value;
-            const homeSubtitle = document.getElementById('content-home-subtitle').value;
-            const aboutContent = document.getElementById('content-about').value;
-            const errorDiv = document.getElementById('content-error');
+            const homeTitle = document.getElementById('content-home-title').value.trim();
+            const homeSubtitle = document.getElementById('content-home-subtitle').value.trim();
+            const aboutContent = document.getElementById('content-about').value.trim();
+            const error = document.getElementById('content-error');
+            if (!error) return showToast('Ошибка: элемент формы не найден', true);
             if (!homeTitle || !homeSubtitle || !aboutContent) {
-                errorDiv.textContent = 'Все поля должны быть заполнены';
-                return;
+                error.textContent = 'Заполните все поля';
+                return showToast('Заполните все поля', true);
             }
             try {
-                const response = await fetch('/api/content', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        home_title: homeTitle,
-                        home_subtitle: homeSubtitle,
-                        about_content: aboutContent
-                    })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    errorDiv.className = 'text-green-500';
-                    errorDiv.textContent = result.message;
-                    fetchContent();
-                } else {
-                    errorDiv.textContent = result.error || 'Ошибка обновления контента';
-                }
+                const result = await apiCall('/api/content', 'PUT', { home_title: homeTitle, home_subtitle: homeSubtitle, about_content: aboutContent }, true);
+                error.classList.remove('error');
+                error.classList.add('success');
+                error.textContent = result.message || 'Контент обновлен';
+                fetchContent();
+                showToast(result.message || 'Контент обновлен');
             } catch (e) {
-                errorDiv.textContent = 'Ошибка сервера';
+                error.classList.add('error');
+                error.textContent = e.message || 'Ошибка обновления контента';
+                showToast(e.message || 'Ошибка обновления контента', true);
             }
         }
 
         async function fetchUsers() {
             try {
-                const response = await fetch('/api/users', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const users = await response.json();
+                const users = await apiCall('/api/users', 'GET', null, true);
                 const tbody = document.getElementById('admin-users-table-body');
-                tbody.innerHTML = '';
+                tbody.innerHTML = users.length ? '' : '<tr><td colspan="5">Пользователи не найдены</td></tr>';
                 users.forEach(user => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="p-3">${user.login}</td>
-                        <td class="p-3">${user.full_name}</td>
-                        <td class="p-3">${user.phone}</td>
-                        <td class="p-3">${user.email}</td>
-                        <td class="p-3">
-                            <button onclick="deleteUser(${user.id})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Удалить</button>
-                        </td>
+                        <td>${user.login}</td>
+                        <td>${user.full_name}</td>
+                        <td>${user.phone}</td>
+                        <td>${user.email}</td>
+                        <td><button class="btn btn-red" onclick="deleteUser(${user.id})">Удалить</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (e) {
-                console.error('Ошибка загрузки пользователей');
+                showToast('Ошибка загрузки пользователей: ' + e.message, true);
             }
         }
 
         async function deleteUser(id) {
             if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) return;
             try {
-                const response = await fetch(`/api/users/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    fetchUsers();
-                } else {
-                    alert(result.error || 'Ошибка удаления пользователя');
-                }
+                const result = await apiCall(`/api/users/${id}`, 'DELETE', null, true);
+                fetchUsers();
+                showToast(result.message || 'Пользователь удален');
             } catch (e) {
-                alert('Ошибка сервера');
+                showToast(e.message || 'Ошибка удаления пользователя', true);
             }
         }
 
         async function register() {
-            const login = document.getElementById('reg-login').value;
+            const login = document.getElementById('reg-login').value.trim();
             const password = document.getElementById('reg-password').value;
-            const fullname = document.getElementById('reg-fullname').value;
+            const fullname = document.getElementById('reg-fullname').value.trim();
             const phone = document.getElementById('reg-phone').value;
-            const email = document.getElementById('reg-email').value;
-            const errorDiv = document.getElementById('register-error');
-
-            if (!login || login.length < 3) {
-                errorDiv.textContent = 'Логин должен быть не короче 3 символов';
-                return;
-            }
-            if (!password || password.length < 6) {
-                errorDiv.textContent = 'Пароль должен быть не короче 6 символов';
-                return;
-            }
-            if (!fullname.match(/^[А-Яа-я\s]+$/)) {
-                errorDiv.textContent = 'ФИО должно содержать только кириллицу и пробелы';
-                return;
-            }
-            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) {
-                errorDiv.textContent = 'Телефон должен быть в формате +7(XXX)-XXX-XX-XX';
-                return;
-            }
-            if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-                errorDiv.textContent = 'Некорректный формат email';
-                return;
-            }
-
+            const email = document.getElementById('reg-email').value.trim();
+            const error = document.getElementById('register-error');
+            const btnText = document.getElementById('reg-btn-text');
+            const spinner = document.getElementById('reg-btn-spinner');
+            if (!error) return showToast('Ошибка: элемент формы не найден', true);
+            if (login.length < 3) return showError(error, 'Логин должен быть длиннее 2 символов');
+            if (password.length < 6) return showError(error, 'Пароль должен быть длиннее 5 символов');
+            if (!fullname.match(/^[А-Яа-я\s]+$/)) return showError(error, 'ФИО должно содержать только кириллицу');
+            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) return showError(error, 'Неверный формат телефона');
+            if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) return showError(error, 'Неверный формат email');
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline';
             try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ login, password, full_name: fullname, phone, email })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    errorDiv.className = 'text-green-500';
-                    errorDiv.textContent = result.message;
-                    setTimeout(showAuth, 2000);
-                } else {
-                    errorDiv.textContent = result.error || 'Ошибка регистрации';
-                }
+                const result = await apiCall('/api/register', 'POST', { login, password, full_name: fullname, phone, email });
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.classList.remove('error');
+                error.classList.add('success');
+                error.textContent = result.message || 'Регистрация успешна';
+                showToast(result.message || 'Регистрация успешна');
+                setTimeout(() => openModal('auth'), 2000);
             } catch (e) {
-                errorDiv.textContent = 'Ошибка сервера';
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.classList.add('error');
+                error.textContent = e.message || 'Ошибка регистрации';
+                showToast(e.message || 'Ошибка регистрации', true);
             }
         }
 
         async function login() {
-            const login = document.getElementById('auth-login').value;
+            const login = document.getElementById('auth-login').value.trim();
             const password = document.getElementById('auth-password').value;
-            const errorDiv = document.getElementById('auth-error');
-
+            const error = document.getElementById('auth-error');
+            const btnText = document.getElementById('auth-btn-text');
+            const spinner = document.getElementById('auth-btn-spinner');
+            if (!error) return showToast('Ошибка: элемент формы не найден', true);
+            if (!login || !password) return showError(error, 'Заполните все поля');
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline';
             try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ login, password })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    token = result.token;
-                    userId = result.userId;
-                    isAdmin = result.isAdmin;
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('userId', userId);
-                    localStorage.setItem('isAdmin', isAdmin);
-                    if (isAdmin) {
-                        showAdminPanel();
-                    } else {
-                        showOrders();
-                    }
-                } else {
-                    errorDiv.textContent = result.error || 'Неверный логин или пароль';
-                }
+                const result = await apiCall('/api/login', 'POST', { login, password });
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                token = result.token;
+                userId = result.userId;
+                isAdmin = result.isAdmin;
+                localStorage.setItem('token', token);
+                localStorage.setItem('userId', userId);
+                localStorage.setItem('isAdmin', isAdmin);
+                closeModal();
+                if (isAdmin) showAdminPanel();
+                else showOrders();
+                showToast('Вход выполнен успешно');
             } catch (e) {
-                errorDiv.textContent = 'Ошибка сервера';
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.textContent = e.message || 'Ошибка входа';
+                showToast(e.message || 'Ошибка входа', true);
             }
+        }
+
+        function logout() {
+            localStorage.clear();
+            token = null;
+            userId = null;
+            isAdmin = false;
+            showHome();
+            showToast('Выход выполнен');
         }
 
         async function fetchOrders() {
             try {
-                const response = await fetch('/api/orders', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const orders = await response.json();
+                const orders = await apiCall('/api/orders', 'GET', null, true);
                 const tbody = document.getElementById('orders-table-body');
-                tbody.innerHTML = '';
+                tbody.innerHTML = orders.length ? '' : '<tr><td colspan="5">Заявки не найдены</td></tr>';
                 orders.forEach(order => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="p-3">${order.address}</td>
-                        <td class="p-3">${order.service_type}${order.other_service ? ` (${order.other_service})` : ''}</td>
-                        <td class="p-3">${new Date(order.date_time).toLocaleString()}</td>
-                        <td class="p-3">${order.payment_type}</td>
-                        <td class="p-3">${order.status}</td>
+                        <td>${order.address}</td>
+                        <td>${order.service_type}${order.other_service ? ` (${order.other_service})` : ''}</td>
+                        <td>${new Date(order.date_time).toLocaleString()}</td>
+                        <td>${order.payment_type}</td>
+                        <td>${order.status}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (e) {
-                console.error('Ошибка загрузки заявок');
+                showToast('Ошибка загрузки заявок: ' + e.message, true);
             }
         }
 
         async function submitOrder() {
-            const address = document.getElementById('order-address').value;
+            const address = document.getElementById('order-address').value.trim();
             const phone = document.getElementById('order-phone').value;
             const service = document.getElementById('order-service').value;
-            const otherService = document.getElementById('other-service-check').checked ? document.getElementById('other-service').value : '';
+            const otherService = document.getElementById('other-service-check').checked ? document.getElementById('other-service').value.trim() : '';
             const datetime = document.getElementById('order-datetime').value;
             const payment = document.getElementById('order-payment').value;
-            const errorDiv = document.getElementById('order-error');
-
-            if (!address) {
-                errorDiv.textContent = 'Укажите адрес';
-                return;
-            }
-            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) {
-                errorDiv.textContent = 'Телефон должен быть в формате +7(XXX)-XXX-XX-XX';
-                return;
-            }
-            if (!service && !otherService) {
-                errorDiv.textContent = 'Выберите услугу или укажите иную';
-                return;
-            }
-            if (!datetime) {
-                errorDiv.textContent = 'Укажите дату и время';
-                return;
-            }
-            if (!payment) {
-                errorDiv.textContent = 'Выберите тип оплаты';
-                return;
-            }
-
+            const error = document.getElementById('order-error');
+            const btnText = document.getElementById('order-btn-text');
+            const spinner = document.getElementById('order-btn-spinner');
+            if (!error) return showToast('Ошибка: элемент формы не найден', true);
+            if (!address) return showError(error, 'Укажите адрес');
+            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) return showError(error, 'Неверный формат телефона');
+            if (!service && !otherService) return showError(error, 'Выберите или опишите услугу');
+            if (!datetime) return showError(error, 'Укажите дату и время');
+            if (!payment) return showError(error, 'Выберите тип оплаты');
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline';
             try {
-                const response = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        address,
-                        phone,
-                        service_type: service,
-                        other_service: otherService,
-                        date_time: datetime,
-                        payment_type: payment
-                    })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    errorDiv.className = 'text-green-500';
-                    errorDiv.textContent = result.message;
-                    setTimeout(showOrders, 2000);
-                } else {
-                    errorDiv.textContent = result.error || 'Ошибка создания заявки';
-                }
+                const result = await apiCall('/api/orders', 'POST', {
+                    address, phone, service_type: service, other_service: otherService, date_time: datetime, payment_type: payment
+                }, true);
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.classList.remove('error');
+                error.classList.add('success');
+                error.textContent = result.message || 'Заявка отправлена';
+                showToast(result.message || 'Заявка отправлена');
+                setTimeout(() => {
+                    closeModal();
+                    showOrders();
+                }, 2000);
             } catch (e) {
-                errorDiv.textContent = 'Ошибка сервера';
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.textContent = e.message || 'Ошибка отправки заявки';
+                showToast(e.message || 'Ошибка отправки заявки', true);
+            }
+        }
+
+        async function submitCta() {
+            const name = document.getElementById('cta-name').value.trim();
+            const phone = document.getElementById('cta-phone').value;
+            const error = document.getElementById('cta-error');
+            const success = document.getElementById('cta-success');
+            const btnText = document.getElementById('cta-btn-text');
+            const spinner = document.getElementById('cta-btn-spinner');
+            if (!error || !success) return showToast('Ошибка: элемент формы не найден', true);
+            if (!name || name.length < 2) return showError(error, 'Имя должно быть длиннее 1 символа');
+            if (!phone.match(/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/)) return showError(error, 'Неверный формат телефона');
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline';
+            try {
+                const result = await apiCall('/api/cta', 'POST', { name, phone });
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                error.textContent = '';
+                success.textContent = result.message || 'Заявка отправлена';
+                showToast(result.message || 'Заявка отправлена');
+                document.getElementById('cta-name').value = '';
+                document.getElementById('cta-phone').value = '';
+                setTimeout(() => success.textContent = '', 3000);
+            } catch (e) {
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                success.textContent = '';
+                error.textContent = e.message || 'Ошибка отправки заявки';
+                showToast(e.message || 'Ошибка отправки заявки', true);
             }
         }
 
         async function fetchAdminOrders() {
             try {
-                const response = await fetch('/api/admin-orders', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const orders = await response.json();
+                const orders = await apiCall('/api/admin-orders', 'GET', null, true);
                 const tbody = document.getElementById('admin-orders-table-body');
-                tbody.innerHTML = '';
+                tbody.innerHTML = orders.length ? '' : '<tr><td colspan="8">Заявки не найдены</td></tr>';
                 orders.forEach(order => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="p-3">${order.full_name}</td>
-                        <td class="p-3">${order.address}</td>
-                        <td class="p-3">${order.phone}</td>
-                        <td class="p-3">${order.service_type}${order.other_service ? ` (${order.other_service})` : ''}</td>
-                        <td class="p-3">${new Date(order.date_time).toLocaleString()}</td>
-                        <td class="p-3">${order.payment_type}</td>
-                        <td class="p-3">${order.status}</td>
-                        <td class="p-3">
-                            <select onchange="updateStatus(${order.id}, this.value)" class="p-2 border rounded">
+                        <td>${order.full_name}</td>
+                        <td>${order.address}</td>
+                        <td>${order.phone}</td>
+                        <td>${order.service_type}${order.other_service ? ` (${order.other_service})` : ''}</td>
+                        <td>${new Date(order.date_time).toLocaleString()}</td>
+                        <td>${order.payment_type}</td>
+                        <td>${order.status}</td>
+                        <td>
+                            <select onchange="updateStatus(${order.id}, this.value)">
                                 <option value="новая" ${order.status === 'новая' ? 'selected' : ''}>Новая</option>
                                 <option value="в работе" ${order.status === 'в работе' ? 'selected' : ''}>В работе</option>
                                 <option value="выполнено" ${order.status === 'выполнено' ? 'selected' : ''}>Выполнено</option>
                                 <option value="отменено" ${order.status === 'отменено' ? 'selected' : ''}>Отменено</option>
                             </select>
-                            ${order.status === 'отменено' ? `<input type="text" value="${order.cancel_reason || ''}" onchange="updateCancelReason(${order.id}, this.value)" class="p-2 border rounded mt-2">` : ''}
+                            ${order.status === 'отменено' ? `<input type="text" value="${order.cancel_reason || ''}" onchange="updateCancelReason(${order.id}, this.value)">` : ''}
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (e) {
-                console.error('Ошибка загрузки заявок администратора');
+                showToast('Ошибка загрузки заявок: ' + e.message, true);
             }
         }
 
@@ -786,57 +1520,41 @@
                 if (!cancelReason) return;
             }
             try {
-                const response = await fetch('/api/admin-orders', {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: orderId, status, cancel_reason: cancelReason })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    fetchAdminOrders();
-                } else {
-                    alert(result.error || 'Ошибка обновления статуса');
-                }
+                const result = await apiCall('/api/admin-orders', 'PATCH', { id: orderId, status, cancel_reason: cancelReason }, true);
+                fetchAdminOrders();
+                showToast(result.message || 'Статус обновлен');
             } catch (e) {
-                alert('Ошибка сервера');
+                showToast(e.message || 'Ошибка обновления статуса', true);
             }
         }
 
         async function updateCancelReason(orderId, reason) {
+            if (!reason.trim()) return showToast('Причина не может быть пустой', true);
             try {
-                const response = await fetch('/api/admin-orders', {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: orderId, cancel_reason: reason })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    fetchAdminOrders();
-                } else {
-                    alert(result.error || 'Ошибка обновления причины');
-                }
+                const result = await apiCall('/api/admin-orders', 'PATCH', { id: orderId, cancel_reason: reason }, true);
+                fetchAdminOrders();
+                showToast(result.message || 'Причина обновлена');
             } catch (e) {
-                alert('Ошибка сервера');
+                showToast(e.message || 'Ошибка обновления причины', true);
             }
         }
 
-        async function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('isAdmin');
-            token = null;
-            userId = null;
-            isAdmin = false;
-            showAuth();
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.add('error');
+            showToast(message, true);
         }
 
-        showHome();
+        document.addEventListener('DOMContentLoaded', () => {
+            initPhoneMasks();
+            showHome();
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.textContent === 'Мои заявки' && isAdmin) {
+                    link.textContent = 'Админ-панель';
+                    link.onclick = showAdminPanel;
+                }
+            });
+        });
     </script>
 </body>
 </html>
